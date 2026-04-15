@@ -11,6 +11,12 @@ concurrency:
   group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
+# Opt into Node 24 as the actions runtime (checkout@v4, pnpm/action-setup@v4
+# still ship Node-20 bundles otherwise). Safe to drop once those actions
+# release v5 or GitHub forces the switch in June 2026.
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
 jobs:
   verify:
     name: verify (node ${{ matrix.node }})
@@ -25,8 +31,6 @@ jobs:
           fetch-depth: 0
 
       - uses: pnpm/action-setup@v4
-        with:
-          version: 9
 
       - uses: actions/setup-node@v4
         with:
