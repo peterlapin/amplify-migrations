@@ -1,6 +1,6 @@
 {
   "name": "@amplify-migrations/cdk",
-  "version": "1.0.0-alpha.0",
+  "version": "1.0.0",
   "description": "Amplify Gen 2 backend integration for amplify-migrations",
   "license": "MIT",
   "type": "module",
@@ -12,7 +12,10 @@
       "import": "./dist/index.js"
     }
   },
-  "files": ["dist", "README.md"],
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
     "build": "tsup",
     "typecheck": "tsc --noEmit",
@@ -37,8 +40,12 @@
     "access": "public"
   },
   "peerDependenciesMeta": {
-    "aws-cdk-lib": { "optional": false },
-    "constructs": { "optional": false }
+    "aws-cdk-lib": {
+      "optional": false
+    },
+    "constructs": {
+      "optional": false
+    }
   },
   "repository": {
     "type": "git",
@@ -46,7 +53,18 @@
     "directory": "packages/cdk"
   },
   "homepage": "https://github.com/peter-lapin/amplify-migrations#readme",
-  "bugs": { "url": "https://github.com/peter-lapin/amplify-migrations/issues" },
-  "keywords": ["amplify", "aws", "cdk", "dynamodb", "migrations", "gen2"],
-  "engines": { "node": ">=20" }
+  "bugs": {
+    "url": "https://github.com/peter-lapin/amplify-migrations/issues"
+  },
+  "keywords": [
+    "amplify",
+    "aws",
+    "cdk",
+    "dynamodb",
+    "migrations",
+    "gen2"
+  ],
+  "engines": {
+    "node": ">=20"
+  }
 }

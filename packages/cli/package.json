@@ -1,13 +1,16 @@
 {
   "name": "@amplify-migrations/cli",
-  "version": "1.0.0-alpha.0",
+  "version": "1.0.0",
   "description": "CLI for amplify-migrations",
   "license": "MIT",
   "type": "module",
   "bin": {
     "amplify-migrations": "./dist/cli.js"
   },
-  "files": ["dist", "README.md"],
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
     "build": "tsup",
     "typecheck": "tsc --noEmit",
@@ -34,7 +37,18 @@
     "directory": "packages/cli"
   },
   "homepage": "https://github.com/peter-lapin/amplify-migrations#readme",
-  "bugs": { "url": "https://github.com/peter-lapin/amplify-migrations/issues" },
-  "keywords": ["amplify", "aws", "dynamodb", "migrations", "cli", "gen2"],
-  "engines": { "node": ">=20" }
+  "bugs": {
+    "url": "https://github.com/peter-lapin/amplify-migrations/issues"
+  },
+  "keywords": [
+    "amplify",
+    "aws",
+    "dynamodb",
+    "migrations",
+    "cli",
+    "gen2"
+  ],
+  "engines": {
+    "node": ">=20"
+  }
 }
