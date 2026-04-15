@@ -1,0 +1,47 @@
+{
+  "name": "@amplify-migrations/core",
+  "version": "1.0.0-alpha.0",
+  "description": "Core migration runner for AWS Amplify Data (Gen 2)",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": ["dist", "README.md"],
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.670.0",
+    "@aws-sdk/lib-dynamodb": "^3.670.0",
+    "pino": "^9.5.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "aws-sdk-client-mock": "^4.1.0",
+    "tsup": "^8.3.0",
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/peter-lapin/amplify-migrations.git",
+    "directory": "packages/core"
+  },
+  "homepage": "https://github.com/peter-lapin/amplify-migrations#readme",
+  "bugs": { "url": "https://github.com/peter-lapin/amplify-migrations/issues" },
+  "keywords": ["amplify", "aws", "dynamodb", "migrations", "mikro-orm", "gen2", "appsync"],
+  "engines": { "node": ">=20" }
+}

@@ -1,0 +1,99 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Cancel superseded runs on the same PR/branch so a fast push replaces a slow one.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: verify (node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [20, 22]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Build
+        run: pnpm build
+
+      - name: Test
+        run: pnpm test
+
+  changeset:
+    name: changeset check
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check for changeset (skippable)
+        env:
+          BASE: ${{ github.base_ref }}
+          PR_LABELS: ${{ toJson(github.event.pull_request.labels.*.name) }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          set -e
+          # Skip triggers:
+          #  - PR labelled "no-changeset"
+          #  - PR title starts with chore:, docs:, ci:, test:, build:, style:, refactor:
+          #  - no files under packages/ changed
+          if echo "$PR_LABELS" | grep -q '"no-changeset"'; then
+            echo "✅ Skipped: PR labelled no-changeset"
+            exit 0
+          fi
+
+          if echo "$PR_TITLE" | grep -qE '^(chore|docs|ci|test|build|style|refactor)(\(.+\))?:'; then
+            echo "✅ Skipped: PR title prefix indicates non-user-visible change"
+            exit 0
+          fi
+
+          git fetch origin "$BASE" --depth=1
+          changed_packages=$(git diff --name-only "origin/$BASE"...HEAD -- 'packages/**' || true)
+          if [ -z "$changed_packages" ]; then
+            echo "✅ Skipped: no package source files changed"
+            exit 0
+          fi
+
+          added_changesets=$(git diff --name-only --diff-filter=A "origin/$BASE"...HEAD -- '.changeset/*.md' | grep -v '^\.changeset/README\.md$' || true)
+          if [ -z "$added_changesets" ]; then
+            echo "::error::No changeset detected for a change that touches packages/**"
+            echo ""
+            echo "Run 'pnpm changeset' locally and commit the generated .changeset/*.md,"
+            echo "OR add the 'no-changeset' label to this PR,"
+            echo "OR prefix the title with chore:/docs:/ci:/test:/build:/style:/refactor:"
+            exit 1
+          fi
+
+          echo "✅ Found changeset(s):"
+          echo "$added_changesets"
