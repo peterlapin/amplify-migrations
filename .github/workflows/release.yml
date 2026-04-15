@@ -1,8 +1,11 @@
 name: Release
 
+# Manual-only until NPM_TOKEN is configured in repo secrets.
+# When ready to auto-publish on merge to main, restore:
+#   push:
+#     branches: [main]
 on:
-  push:
-    branches: [main]
+  workflow_dispatch:
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
