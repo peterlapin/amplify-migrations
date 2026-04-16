@@ -1,7 +1,3 @@
-import { createHash } from 'node:crypto';
-import { mkdirSync, mkdtempSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
-import { createRequire } from 'node:module';
-import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { CustomResource, Duration, RemovalPolicy, type Stack, Tags } from 'aws-cdk-lib';
@@ -9,6 +5,7 @@ import { AttributeType, BillingMode, Table } from 'aws-cdk-lib/aws-dynamodb';
 import { PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { Code, Function as LambdaFunction, Runtime } from 'aws-cdk-lib/aws-lambda';
 import { Provider } from 'aws-cdk-lib/custom-resources';
+import { buildLambdaAsset } from './internal/buildLambdaAsset.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -110,7 +107,7 @@ export function withMigrations(backend: AmplifyBackendLike, opts: WithMigrations
   const tableMap: Record<string, string> = {};
   for (const [model, ref] of Object.entries(dataTables)) tableMap[model] = ref.tableName;
 
-  const assetDir = opts.prebuiltAssetDir ?? buildLambdaAsset(opts.migrationsDir);
+  const assetDir = opts.prebuiltAssetDir ?? buildLambdaAsset(opts.migrationsDir, __dirname);
 
   const runner = new LambdaFunction(migrationStack, 'RunnerFn', {
     runtime: Runtime.NODEJS_20_X,
@@ -172,63 +169,4 @@ export function withMigrations(backend: AmplifyBackendLike, opts: WithMigrations
       },
     },
   });
-}
-
-/**
- * esbuild-backed bundler: compiles the handler and each migration file into
- * plain ESM JS inside a temp directory that Lambda can load directly.
- * We require esbuild lazily so the CDK package doesn't force it on users who
- * supply a `prebuiltAssetDir`.
- */
-function buildLambdaAsset(migrationsDir: string): string {
-  // We run under both tsup's bundle (where `require` exists in the cjs
-  // emission) and directly under ESM via ampx. Prefer createRequire so it
-  // works in both modes.
-  const req = createRequire(import.meta.url);
-  const esbuild = req('esbuild') as typeof import('esbuild');
-  const out = mkdtempSync(join(tmpdir(), 'amplify-migrations-'));
-  mkdirSync(join(out, 'migrations'), { recursive: true });
-
-  const handlerEntry = resolve(__dirname, 'runtime/runnerHandler.js');
-  esbuild.buildSync({
-    entryPoints: [handlerEntry],
-    bundle: true,
-    platform: 'node',
-    target: 'node20',
-    format: 'cjs',
-    outfile: join(out, 'handler.js'),
-    external: ['aws-sdk'],
-    sourcemap: 'inline',
-  });
-
-  for (const entry of readdirSync(migrationsDir)) {
-    if (!/^Migration\d{14}.*\.(ts|mts|js|mjs)$/.test(entry)) continue;
-    if (/\.schema\.(ts|js)$/.test(entry)) continue;
-    const sourcePath = resolve(migrationsDir, entry);
-    const outBasename = entry.replace(/\.(ts|mts|mjs)$/, '.js');
-    esbuild.buildSync({
-      entryPoints: [sourcePath],
-      bundle: true,
-      platform: 'node',
-      target: 'node20',
-      format: 'cjs',
-      outfile: join(out, 'migrations', outBasename),
-      external: ['aws-sdk'],
-      sourcemap: 'inline',
-    });
-
-    // Write the source checksum as a sidecar so the runtime loader records
-    // the same hash the CLI sees on disk — otherwise esbuild's bundled
-    // output would have a different hash and checksum-drift checks would
-    // always fail.
-    const sourceHash = createHash('sha256').update(readFileSync(sourcePath)).digest('hex');
-    writeFileSync(
-      join(out, 'migrations', `${outBasename.replace(/\.js$/, '')}.sha256`),
-      sourceHash,
-    );
-  }
-
-  // Marker file so we can assert the asset layout in tests.
-  writeFileSync(join(out, '.amplify-migrations-asset'), 'v1');
-  return out;
 }

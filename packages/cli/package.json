@@ -1,5 +1,5 @@
 {
-  "name": "@amplify-migrations/cli",
+  "name": "@lapinsoft/data-migrations-cli",
   "version": "1.0.0-alpha.0",
   "description": "CLI for amplify-migrations",
   "license": "MIT",
@@ -11,10 +11,10 @@
   "scripts": {
     "build": "tsup",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "node --no-warnings --import @swc-node/register/esm-register --test test/*.test.ts"
   },
   "dependencies": {
-    "@amplify-migrations/core": "workspace:*",
+    "@lapinsoft/data-migrations-core": "workspace:*",
     "@swc-node/register": "^1.10.0",
     "commander": "^12.1.0",
     "picocolors": "^1.1.0"
@@ -22,11 +22,11 @@
   "devDependencies": {
     "@types/node": "^20.14.0",
     "tsup": "^8.3.0",
-    "typescript": "^5.6.0",
-    "vitest": "^2.1.0"
+    "typescript": "^5.6.0"
   },
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "tag": "next"
   },
   "repository": {
     "type": "git",

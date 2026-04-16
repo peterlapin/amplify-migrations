@@ -1,7 +1,7 @@
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { withMigrations } from '@amplify-migrations/cdk';
 import { defineBackend } from '@aws-amplify/backend';
+import { withMigrations } from '@lapinsoft/data-migrations-cdk';
 import { RemovalPolicy } from 'aws-cdk-lib';
 import { auth } from './auth/resource.js';
 import { data } from './data/resource.js';

@@ -58,7 +58,7 @@ Non-goals: generating migrations by diffing Amplify schemas (Amplify/CDK already
                 │ CDK resource refs (table names, IAM role)
                 ▼
 ┌──────────────────────────────────────────────────────────────┐
-│  @amplify-migrations/core                                    │
+│  @lapinsoft/data-migrations-core                             │
 │                                                              │
 │   Runner ──► StateStore (DDB)       MigrationLoader (fs)     │
 │     │          │                         │                   │
@@ -68,8 +68,8 @@ Non-goals: generating migrations by diffing Amplify schemas (Amplify/CDK already
 │   MigrationContext { ddb, tables, schema, logger }           │
 └──────────────────────────────────────────────────────────────┘
                 │
-                ├── @amplify-migrations/cli   (local dev, CI)
-                └── @amplify-migrations/cdk   (auto-run on deploy
+                ├── @lapinsoft/data-migrations-cli   (local dev, CI)
+                └── @lapinsoft/data-migrations-cdk   (auto-run on deploy
                                                 via CustomResource)
 ```
 
@@ -96,7 +96,7 @@ Publishing the runner separately from the CLI keeps Lambda bundles small — the
 
 ```ts
 // amplify-migrations.config.ts
-import { defineMigrationsConfig } from "@amplify-migrations/core";
+import { defineMigrationsConfig } from "@lapinsoft/data-migrations-core";
 
 export default defineMigrationsConfig({
   migrationsDir: "./amplify/migrations",
@@ -113,7 +113,7 @@ The state table's physical name is never hardcoded; `withMigrations()` writes it
 
 ```ts
 // amplify/migrations/Migration20260415120000-backfill-todo-owner.ts
-import { AmplifyMigration, type MigrationContext } from "@amplify-migrations/core";
+import { AmplifyMigration, type MigrationContext } from "@lapinsoft/data-migrations-core";
 // Schema is imported from the FROZEN sibling snapshot, not from
 // `../data/resource`. See §5.5 for why.
 import type { Schema } from "./Migration20260415120000-backfill-todo-owner.schema.js";
@@ -157,7 +157,7 @@ Model names are literal union types derived from `Schema`, so typos fail at comp
 ```ts
 // amplify/backend.ts
 import { defineBackend } from "@aws-amplify/backend";
-import { withMigrations } from "@amplify-migrations/cdk";
+import { withMigrations } from "@lapinsoft/data-migrations-cdk";
 import { auth } from "./auth/resource";
 import { data } from "./data/resource";
 
@@ -181,7 +181,7 @@ Under the hood, `withMigrations`:
 ### 5.4 CLI
 
 ```
-amplify-migrations create <name>         # scaffold timestamped file + frozen schema snapshot
+amplify-migrations create <name>         # scaffold timestamped file + editable schema stub
 amplify-migrations up [--to NAME] [--dry] [--allow-checksum-mismatch]
 amplify-migrations down [--steps N] [--to NAME] [--dry] [--allow-checksum-mismatch]
 amplify-migrations pending
@@ -331,7 +331,7 @@ Phased, each phase leaves the library usable.
 - README with quickstart, config reference, recipes (backfill, rename, split model)
 - Published to GitHub with MIT license, Actions release workflow via changesets
 
-Total: ~7 engineering days to a publishable 0.1.0.
+Total: ~7 engineering days to a publishable alpha.
 
 ---
 

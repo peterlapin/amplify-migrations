@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 // We test the RequestType gating algorithm in isolation so we don't need
-// @amplify-migrations/core or the AWS SDK installed.
+// @lapinsoft/data-migrations-core or the AWS SDK installed.
 
 type Ev = { RequestType: 'Create' | 'Update' | 'Delete'; PhysicalResourceId?: string };
 

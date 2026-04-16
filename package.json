@@ -7,15 +7,16 @@
   "workspaces": ["packages/*", "examples/*"],
   "scripts": {
     "build": "pnpm -r --filter \"./packages/*\" build",
-    "test": "node --experimental-strip-types --no-warnings --test --test-reporter=spec 'packages/core/test/*.test.ts' 'packages/cdk/test/*.test.ts'",
+    "test": "node --no-warnings --import @swc-node/register/esm-register --test --test-reporter=spec 'packages/core/test/*.test.ts' 'packages/cli/test/*.test.ts' 'packages/cdk/test/*.test.ts'",
     "lint": "biome check .",
     "format": "biome format --write .",
     "typecheck": "pnpm -r --filter \"./packages/*\" typecheck",
     "verify": "pnpm lint && pnpm typecheck && pnpm build && pnpm test",
     "changeset": "changeset",
-    "release": "pnpm build && changeset publish"
+    "release": "pnpm build && changeset publish --tag next"
   },
   "devDependencies": {
+    "@swc-node/register": "^1.10.0",
     "@biomejs/biome": "^1.9.0",
     "@changesets/cli": "^2.27.0",
     "@types/node": "^20.14.0",

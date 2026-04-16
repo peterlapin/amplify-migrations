@@ -6,7 +6,7 @@ import { describe, it } from 'node:test';
 import { scaffoldMigration } from '../src/runner/scaffold.ts';
 
 describe('scaffoldMigration', () => {
-  it('creates paired migration + frozen schema snapshot', async () => {
+  it('creates paired migration + editable schema stub', async () => {
     const dir = await mkdtemp(join(tmpdir(), 'am-sc-'));
     const res = await scaffoldMigration({
       dir,
@@ -16,7 +16,7 @@ describe('scaffoldMigration', () => {
     assert.equal(res.name, 'Migration20260415120000-backfill-owner');
     const source = await readFile(res.migrationPath, 'utf8');
     assert.match(source, /extends AmplifyMigration<Schema>/);
-    assert.match(source, new RegExp(`from "./${res.name}.schema.js"`));
+    assert.match(source, new RegExp(`from ['"]\\./${res.name}\\.schema\\.js['"]`));
     const snap = await readFile(res.schemaSnapshotPath, 'utf8');
     assert.match(snap, /export type Schema/);
   });

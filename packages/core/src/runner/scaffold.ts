@@ -25,10 +25,10 @@ export interface ScaffoldResult {
 }
 
 /**
- * Creates a new migration file plus a sibling `.schema.ts` snapshot that
- * freezes the user's Amplify `Schema` type at authoring time. The migration
- * imports `Schema` from the snapshot — never from `amplify/data/resource` —
- * so later schema changes can't retype old migrations.
+ * Creates a new migration file plus a sibling `.schema.ts` companion type
+ * file. If the caller supplies `schemaSnapshotSource` we write that verbatim;
+ * otherwise we scaffold an editable placeholder the author must replace with
+ * the schema shape they want this migration typed against.
  */
 export async function scaffoldMigration(opts: {
   dir: string;
@@ -47,33 +47,33 @@ export async function scaffoldMigration(opts: {
   const schemaSnapshotPath = join(absDir, `${basename}.schema.ts`);
   const migrationPath = join(absDir, `${basename}.ts`);
 
-  const defaultSnapshot = `// Auto-generated schema snapshot — do not edit by hand.
-// Captures the Amplify schema type at the moment this migration was created,
-// so the migration's types cannot drift when the live schema evolves.
+  const defaultSnapshot = `// Auto-generated schema type stub.
+// Replace this with the schema shape you want this migration typed against.
+// This file is NOT a real frozen snapshot unless your tooling supplied one.
 export type Schema = {
   models: {
-    // Replace this with the actual snapshot of your Schema at creation time.
-    // The CLI will fill this in automatically in a future version.
+    // Example:
+    // Todo: { identifier: readonly ['id'] };
     [modelName: string]: { identifier: readonly string[] };
   };
 };
 `;
   await writeFile(schemaSnapshotPath, opts.schemaSnapshotSource ?? defaultSnapshot, 'utf8');
 
-  const migrationSource = `import { AmplifyMigration, type MigrationContext } from "@amplify-migrations/core";
-import type { Schema } from "./${basename}.schema.js";
+  const migrationSource = `import { AmplifyMigration, type MigrationContext } from '@lapinsoft/data-migrations-core';
+import type { Schema } from './${basename}.schema.js';
 
 export default class extends AmplifyMigration<Schema> {
-  static override description = "${opts.name}";
+  static override description = ${JSON.stringify(opts.name)};
 
   async up(ctx: MigrationContext<Schema>): Promise<void> {
     // TODO: implement forward migration
-    ctx.logger.info("up not implemented");
+    ctx.logger.info('up not implemented');
   }
 
   async down(ctx: MigrationContext<Schema>): Promise<void> {
     // TODO: implement rollback
-    ctx.logger.info("down not implemented");
+    ctx.logger.info('down not implemented');
   }
 }
 `;

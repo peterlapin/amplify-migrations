@@ -1,6 +1,7 @@
 export {
   AmplifyMigration,
   defineMigrationsConfig,
+  type ChecksumPolicy,
   type ItemOf,
   type MigrationContext,
   type MigrationRecord,

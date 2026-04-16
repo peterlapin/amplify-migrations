@@ -1,4 +1,4 @@
-# @amplify-migrations/cdk
+# @lapinsoft/data-migrations-cdk
 
 [Amplify Gen 2][amplify-gen2] backend integration for [amplify-migrations](../../README.md).
 
@@ -15,7 +15,7 @@ Drop `withMigrations(backend, opts)` into your `amplify/backend.ts` and it will:
 ## Install
 
 ```bash
-pnpm add @amplify-migrations/cdk @amplify-migrations/core aws-cdk-lib constructs
+pnpm add @lapinsoft/data-migrations-cdk @lapinsoft/data-migrations-core aws-cdk-lib constructs
 ```
 
 ## Wire up
@@ -23,7 +23,7 @@ pnpm add @amplify-migrations/cdk @amplify-migrations/core aws-cdk-lib constructs
 ```ts
 // amplify/backend.ts
 import { defineBackend } from "@aws-amplify/backend";
-import { withMigrations } from "@amplify-migrations/cdk";
+import { withMigrations } from "@lapinsoft/data-migrations-cdk";
 import { auth } from "./auth/resource";
 import { data } from "./data/resource";
 

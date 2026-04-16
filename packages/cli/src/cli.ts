@@ -1,4 +1,4 @@
-import { Runner, scaffoldMigration } from '@amplify-migrations/core';
+import { Runner, scaffoldMigration } from '@lapinsoft/data-migrations-core';
 import { Command } from 'commander';
 import pc from 'picocolors';
 import { loadConfig } from './loadConfig.js';
@@ -16,7 +16,7 @@ program
 
 program
   .command('create <name>')
-  .description('scaffold a new migration + frozen schema snapshot')
+  .description('scaffold a new migration + editable schema type companion')
   .action(async (name: string) => {
     const cfg = await loadConfig();
     const res = await scaffoldMigration({ dir: cfg.migrationsDir, name });

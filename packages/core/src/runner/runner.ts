@@ -153,14 +153,15 @@ export class Runner<S extends SchemaShape = SchemaShape> {
     // Acquire lock FIRST so our pending-set read is consistent with the run.
     await this.state.acquireLock(this.holderId, this.lockTtl);
     const applied: MigrationRecord[] = [];
-    const warnings = await this.checksumDrift();
-    this.enforceChecksumPolicy(warnings, opts.allowChecksumMismatch);
-
+    let warnings: string[] = [];
+    let heartbeat: NodeJS.Timeout | undefined;
     let lockLostReason: string | undefined;
-    const heartbeat = this.startHeartbeat((reason) => {
-      lockLostReason = reason;
-    });
     try {
+      warnings = await this.checksumDrift();
+      this.enforceChecksumPolicy(warnings, opts.allowChecksumMismatch);
+      heartbeat = this.startHeartbeat((reason) => {
+        lockLostReason = reason;
+      });
       const pending = await this.pending();
       const upTo = opts.to;
       const toRun = upTo ? pending.filter((m) => m.name <= upTo) : pending;
@@ -172,11 +173,11 @@ export class Runner<S extends SchemaShape = SchemaShape> {
         const record = await this.runOne(m, 'up', batch);
         applied.push(record);
       }
+      return { applied, pending: [], skipped: [], warnings };
     } finally {
-      clearInterval(heartbeat);
+      if (heartbeat) clearInterval(heartbeat);
       await this.state.releaseLock(this.holderId);
     }
-    return { applied, pending: [], skipped: [], warnings };
   }
 
   async down(opts: DownOptions = {}): Promise<RunResult> {

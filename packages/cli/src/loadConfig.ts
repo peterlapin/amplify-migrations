@@ -1,7 +1,7 @@
 import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import type { MigrationsConfig } from '@amplify-migrations/core';
+import type { MigrationsConfig } from '@lapinsoft/data-migrations-core';
 
 const CANDIDATES = [
   'amplify-migrations.config.ts',
@@ -18,7 +18,7 @@ export async function loadConfig(cwd: string = process.cwd()): Promise<Migration
           await import('@swc-node/register/esm-register');
         } catch {
           throw new Error(
-            `Found ${c} but @swc-node/register is not installed.\nAdd it to your project: pnpm add -D @swc-node/register\nOr rename the file to amplify-migrations.config.js / .mjs.`,
+            `Found ${c} but the CLI could not load its bundled TypeScript config loader.\nReinstall @lapinsoft/data-migrations-cli or rename the file to amplify-migrations.config.js / .mjs.`,
           );
         }
       }

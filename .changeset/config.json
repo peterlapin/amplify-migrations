@@ -2,7 +2,13 @@
   "$schema": "https://unpkg.com/@changesets/config@3.0.0/schema.json",
   "changelog": "@changesets/cli/changelog",
   "commit": false,
-  "fixed": [["@amplify-migrations/core", "@amplify-migrations/cli", "@amplify-migrations/cdk"]],
+  "fixed": [
+    [
+      "@lapinsoft/data-migrations-core",
+      "@lapinsoft/data-migrations-cli",
+      "@lapinsoft/data-migrations-cdk"
+    ]
+  ],
   "linked": [],
   "access": "public",
   "baseBranch": "main",

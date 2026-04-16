@@ -87,7 +87,7 @@ export type ChecksumPolicy = 'off' | 'warn' | 'strict';
 
 export interface MigrationsConfig<S extends SchemaShape = SchemaShape> {
   migrationsDir: string;
-  /** Name of the Amplify model used for state. Defaults to "AmplifyMigration". */
+  /** Name of the private DynamoDB table used for migration state. */
   stateTable?: string;
   /** Path to amplify_outputs.json used to discover the deployed state table name. */
   outputsPath?: string;

@@ -1,5 +1,5 @@
 {
-  "name": "@amplify-migrations/core",
+  "name": "@lapinsoft/data-migrations-core",
   "version": "1.0.0-alpha.0",
   "description": "Core migration runner for AWS Amplify Data (Gen 2)",
   "license": "MIT",
@@ -17,8 +17,7 @@
   "scripts": {
     "build": "tsup",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run",
-    "test:watch": "vitest"
+    "test": "node --no-warnings --import @swc-node/register/esm-register --test test/*.test.ts"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.670.0",
@@ -27,13 +26,14 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@swc-node/register": "^1.10.0",
     "aws-sdk-client-mock": "^4.1.0",
     "tsup": "^8.3.0",
-    "typescript": "^5.6.0",
-    "vitest": "^2.1.0"
+    "typescript": "^5.6.0"
   },
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "tag": "next"
   },
   "repository": {
     "type": "git",

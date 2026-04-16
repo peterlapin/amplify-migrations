@@ -1,4 +1,4 @@
-import { Runner } from '@amplify-migrations/core';
+import { Runner } from '@lapinsoft/data-migrations-core';
 
 interface CfnCustomResourceEvent {
   RequestType: 'Create' | 'Update' | 'Delete';

@@ -1,4 +1,4 @@
-import { AmplifyMigration, type MigrationContext } from '@amplify-migrations/core';
+import { AmplifyMigration, type MigrationContext } from '@lapinsoft/data-migrations-core';
 import type { Schema } from './Migration20260415120000-seed-todos.schema.js';
 
 /**

@@ -10,7 +10,7 @@
 
 - `migrations/` folder with timestamped files
 - Class-based `up(ctx)` / `down(ctx)` with typed model access
-- State + advisory lock stored in a DynamoDB table (declared as an Amplify model)
+- State + advisory lock stored in a private DynamoDB table owned by the library
 - CLI: `create`, `up`, `down`, `pending`, `list`
 - CDK helper: `withMigrations(backend, opts)` runs pending migrations automatically on every deploy via a CloudFormation `CustomResource`
 
@@ -34,15 +34,15 @@ To tear everything down: `pnpm sandbox:delete`.
 ## Quickstart (manual wiring)
 
 ```bash
-pnpm add -D @amplify-migrations/cli
-pnpm add @amplify-migrations/core @amplify-migrations/cdk
+pnpm add -D @lapinsoft/data-migrations-cli
+pnpm add @lapinsoft/data-migrations-core @lapinsoft/data-migrations-cdk
 ```
 
 Your `amplify/data/resource.ts` stays **untouched** — the library owns its state/lock table internally and keeps it out of your GraphQL API, client-generated types, and auth rules. All you need is:
 
 ```ts
 import { defineBackend } from "@aws-amplify/backend";
-import { withMigrations } from "@amplify-migrations/cdk";
+import { withMigrations } from "@lapinsoft/data-migrations-cdk";
 import { auth } from "./auth/resource";
 import { data } from "./data/resource";
 
@@ -63,7 +63,7 @@ Edit the generated file:
 
 ```ts
 // amplify/migrations/Migration20260415120000-backfill-todo-owner.ts
-import { AmplifyMigration, type MigrationContext } from "@amplify-migrations/core";
+import { AmplifyMigration, type MigrationContext } from "@lapinsoft/data-migrations-core";
 // Note: `.js` specifier is correct even though the file is `.schema.ts` —
 // that's how Node ESM + TypeScript NodeNext resolution works. See FAQ below.
 import type { Schema } from "./Migration20260415120000-backfill-todo-owner.schema.js";
@@ -93,16 +93,18 @@ pnpm amplify-migrations pending
 pnpm amplify-migrations up
 ```
 
-## Why `Schema` is snapshotted per file
+## Why each migration gets a sibling `Schema` file
 
 `amplify-migrations create` writes **two** files:
 
 ```
 Migration20260415120000-backfill-todo-owner.ts
-Migration20260415120000-backfill-todo-owner.schema.ts   ← frozen type snapshot
+Migration20260415120000-backfill-todo-owner.schema.ts   ← generated editable schema stub
 ```
 
-The migration imports `Schema` from its sibling snapshot, **not** from `amplify/data/resource`. That way a schema change three months from now can't silently retype — or break — a migration that was authored against a previous shape. Same idea as [MikroORM][mikro-orm]'s `.snapshot.json`, expressed as TypeScript types.
+The migration imports `Schema` from its sibling file, **not** from `amplify/data/resource`. Today the CLI generates that sibling file as an editable stub unless you supply a real schema snapshot programmatically through the core scaffolding API. That keeps the migration self-contained, but it is not yet an automatic frozen snapshot guarantee.
+
+Automatic schema freezing is still planned work.
 
 ## FAQ
 
@@ -124,13 +126,13 @@ First-time-only per region. Run `npx cdk bootstrap aws://<ACCOUNT_ID>/<REGION>` 
 Add it to your project's dependencies: `pnpm add aws-cdk-lib constructs`.
 
 **"Dynamic require of 'esbuild' is not supported"**
-`@amplify-migrations/cdk` >= 0.1.0 requires `esbuild` at synth time. It's a normal dependency of the package; a stale build of the `cdk` package against an older ESM entry can surface this. `pnpm -w build && pnpm install`.
+`@lapinsoft/data-migrations-cdk` bundles migrations with `esbuild` at synth time. If you see this in a local workspace, rebuild and reinstall the package artifacts: `pnpm -w build && pnpm install`.
 
 **"Cannot find package '@swc-node/register'"**
-The CLI uses swc-node to load `amplify-migrations.config.ts`. Add it to your project: `pnpm add -D @swc-node/register`. Or rename the config file to `.mjs` / `.js`.
+The CLI ships its own TypeScript config loader. If this error appears, your local install is likely stale or incomplete. Reinstall `@lapinsoft/data-migrations-cli`, or rename `amplify-migrations.config.ts` to `.mjs` / `.js`.
 
 **"Migration ... must default-export a class extending AmplifyMigration"**
-The runner couldn't find the exported class — usually because the bundler output a CJS module and the default-export landed at `mod.default.default`. Versions >= 0.1.0 handle both shapes. If you still see this, rebuild: `pnpm -w build && touch amplify/backend.ts`.
+The runner couldn't find the exported class — usually because the bundler output a CJS module and the default-export landed at `mod.default.default`. Current alpha builds handle both shapes. If you still see this, rebuild: `pnpm -w build && touch amplify/backend.ts`.
 
 **"Refusing to run: ... applied migration(s) have drifted on disk"**
 Someone edited an already-applied migration. Default policy is `"off"` so you won't normally see this — if you opted into `checksumPolicy: "strict"`, either revert the edit, write a new migration for the change, or pass `--allow-checksum-mismatch` once to unblock.
@@ -140,6 +142,16 @@ The runner couldn't resolve an AWS region. It reads `data.aws_region` or `auth.a
 
 **"Received response status [FAILED] from custom resource"**
 The runner Lambda itself errored during `up()`. Check CloudWatch Logs under `/aws/lambda/amplify-<stack>-RunnerFn-*`. Failed CFN stacks land in `ROLLBACK_COMPLETE` and must be deleted before redeploying: `aws cloudformation delete-stack --stack-name <name> --region <region>`.
+
+## Publishing alpha builds
+
+The planned npm scope is `@lapinsoft`. Until the packages stabilize:
+
+- publishes stay manual
+- prereleases publish under the `next` dist-tag, not `latest`
+- enable npm 2FA before the first real publish
+
+The release workflow remains manual and currently shells out to `changeset publish --tag next`.
 
 ## Layout
 
@@ -154,7 +166,7 @@ examples/
 
 ## Status
 
-0.1.0 — initial publishable release. See [DESIGN.md §10](./DESIGN.md) for the roadmap.
+`1.0.0-alpha.0` — manual prerelease only. Use the `next` dist-tag while the API is still moving. See [DESIGN.md §10](./DESIGN.md) for the roadmap.
 
 ## License
 

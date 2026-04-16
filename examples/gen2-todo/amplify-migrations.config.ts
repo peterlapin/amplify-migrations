@@ -1,6 +1,6 @@
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { defineMigrationsConfig } from '@amplify-migrations/core';
+import { defineMigrationsConfig } from '@lapinsoft/data-migrations-core';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
