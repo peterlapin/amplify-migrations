@@ -1,5 +1,11 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@amplify-migrations/core": ["packages/core/src/index.ts"],
+      "@amplify-migrations/cdk": ["packages/cdk/src/index.ts"],
+      "@amplify-migrations/cli": ["packages/cli/src/cli.ts"]
+    },
     "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "Bundler",
