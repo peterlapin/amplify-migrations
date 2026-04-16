@@ -33,11 +33,11 @@ export function buildUpdateExpression(patch: Record<string, unknown>): BuiltUpda
   if (sets.length === 0 && removes.length === 0) return null;
 
   const parts: string[] = [];
-  if (sets.length) parts.push(`SET ${sets.join(", ")}`);
-  if (removes.length) parts.push(`REMOVE ${removes.join(", ")}`);
+  if (sets.length) parts.push(`SET ${sets.join(', ')}`);
+  if (removes.length) parts.push(`REMOVE ${removes.join(', ')}`);
 
   return {
-    UpdateExpression: parts.join(" "),
+    UpdateExpression: parts.join(' '),
     ExpressionAttributeNames: names,
     ...(Object.keys(values).length ? { ExpressionAttributeValues: values } : {}),
   };

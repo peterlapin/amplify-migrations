@@ -1,19 +1,19 @@
-import { randomUUID } from "node:crypto";
-import { hostname } from "node:os";
-import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
-import pino, { type Logger } from "pino";
-import { createContext } from "../context/context.js";
-import { readAmplifyOutputs } from "../config/outputs.js";
-import { type DiscoveredMigration, discoverMigrations } from "../loader/loader.js";
-import { StateStore } from "../state/store.js";
+import { randomUUID } from 'node:crypto';
+import { hostname } from 'node:os';
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
+import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
+import pino, { type Logger } from 'pino';
+import { readAmplifyOutputs } from '../config/outputs.js';
+import { createContext } from '../context/context.js';
+import { type DiscoveredMigration, discoverMigrations } from '../loader/loader.js';
+import { StateStore } from '../state/store.js';
 import type {
   MigrationContext,
   MigrationRecord,
   MigrationsConfig,
   ModelName,
   SchemaShape,
-} from "../types.js";
+} from '../types.js';
 
 export interface UpOptions {
   to?: string;
@@ -50,7 +50,7 @@ export class Runner<S extends SchemaShape = SchemaShape> {
     stateTableName: string,
     modelTables: Readonly<Record<ModelName<S>, string>>,
   ) {
-    this.logger = config.logger ?? pino({ name: "amplify-migrations" });
+    this.logger = config.logger ?? pino({ name: 'amplify-migrations' });
     this.ddb = ddb;
     this.stateTableName = stateTableName;
     this.modelTables = modelTables;
@@ -77,15 +77,16 @@ export class Runner<S extends SchemaShape = SchemaShape> {
           if (custom.tables) modelTables = { ...custom.tables };
         }
       } catch (err) {
-        // biome-ignore lint/suspicious/noConsole: intentional warning
         console.warn(
           `amplify-migrations: could not read ${config.outputsPath}: ${(err as Error).message}`,
         );
       }
     }
 
-    if (config.tables) modelTables = { ...modelTables, ...(config.tables as Record<string, string>) };
-    stateTableName ??= config.stateTable ?? "AmplifyMigration";
+    if (config.tables) {
+      modelTables = { ...modelTables, ...(config.tables as Record<string, string>) };
+    }
+    stateTableName ??= config.stateTable ?? 'AmplifyMigration';
     region ??= process.env.AWS_REGION ?? process.env.AWS_DEFAULT_REGION;
 
     const ddb =
@@ -128,9 +129,9 @@ export class Runner<S extends SchemaShape = SchemaShape> {
       const mname = rec.migrationName ?? rec.name;
       const d = byName.get(mname);
       if (d && rec.checksum && d.checksum !== rec.checksum) {
-        warnings.push(
-          `checksum drift for "${mname}": applied ${rec.checksum.slice(0, 12)} disk ${d.checksum.slice(0, 12)}`,
-        );
+        const applied = rec.checksum.slice(0, 12);
+        const disk = d.checksum.slice(0, 12);
+        warnings.push(`checksum drift for "${mname}": applied ${applied} disk ${disk}`);
       }
     }
     return warnings;
@@ -139,7 +140,8 @@ export class Runner<S extends SchemaShape = SchemaShape> {
   async up(opts: UpOptions = {}): Promise<RunResult> {
     if (opts.dry) {
       const pending = await this.pending();
-      const toRun = opts.to ? pending.filter((m) => m.name <= opts.to!) : pending;
+      const upTo = opts.to;
+      const toRun = upTo ? pending.filter((m) => m.name <= upTo) : pending;
       return {
         applied: [],
         pending: toRun.map((m) => m.name),
@@ -160,13 +162,14 @@ export class Runner<S extends SchemaShape = SchemaShape> {
     });
     try {
       const pending = await this.pending();
-      const toRun = opts.to ? pending.filter((m) => m.name <= opts.to!) : pending;
+      const upTo = opts.to;
+      const toRun = upTo ? pending.filter((m) => m.name <= upTo) : pending;
       const batch = await this.state.nextBatch();
       for (const m of toRun) {
         if (lockLostReason) {
           throw new Error(`Aborting: migration lock was lost (${lockLostReason})`);
         }
-        const record = await this.runOne(m, "up", batch);
+        const record = await this.runOne(m, 'up', batch);
         applied.push(record);
       }
     } finally {
@@ -181,7 +184,10 @@ export class Runner<S extends SchemaShape = SchemaShape> {
       const { applied } = await this.list();
       const mname = (r: MigrationRecord) => r.migrationName ?? r.name;
       const sorted = [...applied].sort((a, b) => mname(b).localeCompare(mname(a)));
-      const targets = opts.to ? sorted.filter((r) => mname(r) > opts.to!) : sorted.slice(0, opts.steps ?? 1);
+      const downTo = opts.to;
+      const targets = downTo
+        ? sorted.filter((r) => mname(r) > downTo)
+        : sorted.slice(0, opts.steps ?? 1);
       return { applied: [], pending: targets.map(mname), skipped: [], warnings: [] };
     }
 
@@ -198,7 +204,10 @@ export class Runner<S extends SchemaShape = SchemaShape> {
       );
       const mname = (r: MigrationRecord) => r.migrationName ?? r.name;
       const sorted = [...applied].sort((a, b) => mname(b).localeCompare(mname(a)));
-      const targets = opts.to ? sorted.filter((r) => mname(r) > opts.to!) : sorted.slice(0, opts.steps ?? 1);
+      const downTo = opts.to;
+      const targets = downTo
+        ? sorted.filter((r) => mname(r) > downTo)
+        : sorted.slice(0, opts.steps ?? 1);
 
       const batch = await this.state.nextBatch();
       for (const r of targets) {
@@ -208,14 +217,17 @@ export class Runner<S extends SchemaShape = SchemaShape> {
         const found = diskByName.get(mname(r));
         if (!found) {
           throw new Error(
-            `Cannot down "${mname(r)}": file not found in ${this.config.migrationsDir}. Restore the file before rolling back.`,
+            `Cannot down "${mname(r)}": file not found in ` +
+              `${this.config.migrationsDir}. Restore the file before rolling back.`,
           );
         }
         if (r.checksum && found.checksum !== r.checksum) {
-          const msg = `checksum drift for "${mname(r)}": applied ${r.checksum.slice(0, 12)} disk ${found.checksum.slice(0, 12)}`;
+          const applied = r.checksum.slice(0, 12);
+          const disk = found.checksum.slice(0, 12);
+          const msg = `checksum drift for "${mname(r)}": applied ${applied} disk ${disk}`;
           this.enforceChecksumPolicy([msg], opts.allowChecksumMismatch);
         }
-        const rec = await this.runOne(found, "down", batch);
+        const rec = await this.runOne(found, 'down', batch);
         results.push(rec);
       }
     } finally {
@@ -228,15 +240,16 @@ export class Runner<S extends SchemaShape = SchemaShape> {
   /** Applies the configured ChecksumPolicy to a set of drift warnings. */
   private enforceChecksumPolicy(warnings: string[], allowOverride?: boolean): void {
     if (warnings.length === 0) return;
-    const policy = this.config.checksumPolicy ?? "off";
-    if (policy === "off" || allowOverride) return;
-    if (policy === "warn") {
+    const policy = this.config.checksumPolicy ?? 'off';
+    if (policy === 'off' || allowOverride) return;
+    if (policy === 'warn') {
       for (const w of warnings) this.logger.warn(w);
       return;
     }
     // strict
+    const detail = warnings.join('\n  ');
     throw new Error(
-      `Refusing to run: ${warnings.length} applied migration(s) have drifted on disk.\n  ${warnings.join("\n  ")}\nPass --allow-checksum-mismatch, relax checksumPolicy in your config, or restore the files.`,
+      `Refusing to run: ${warnings.length} applied migration(s) have drifted on disk.\n  ${detail}\nPass --allow-checksum-mismatch, relax checksumPolicy, or restore the files.`,
     );
   }
 
@@ -257,7 +270,7 @@ export class Runner<S extends SchemaShape = SchemaShape> {
         (err) => {
           consecutiveFailures += 1;
           const msg = (err as Error).message;
-          this.logger.warn({ err: msg, consecutiveFailures }, "lock renewal failed");
+          this.logger.warn({ err: msg, consecutiveFailures }, 'lock renewal failed');
           if (consecutiveFailures >= 2) onLost(msg);
         },
       );
@@ -266,11 +279,11 @@ export class Runner<S extends SchemaShape = SchemaShape> {
 
   private async runOne(
     m: DiscoveredMigration<S>,
-    direction: "up" | "down",
+    direction: 'up' | 'down',
     batch: number,
   ): Promise<MigrationRecord> {
     const child = this.logger.child({ migration: m.name, direction });
-    child.info("starting");
+    child.info('starting');
     const t0 = Date.now();
 
     const Ctor = await m.load();
@@ -281,7 +294,7 @@ export class Runner<S extends SchemaShape = SchemaShape> {
       logger: child,
     });
 
-    if (direction === "up") await instance.up(ctx);
+    if (direction === 'up') await instance.up(ctx);
     else await instance.down(ctx);
 
     const durationMs = Date.now() - t0;
@@ -295,7 +308,7 @@ export class Runner<S extends SchemaShape = SchemaShape> {
       direction,
     };
     await this.state.record(record);
-    child.info({ durationMs }, "completed");
+    child.info({ durationMs }, 'completed');
     return record;
   }
 }

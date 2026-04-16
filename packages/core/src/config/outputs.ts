@@ -1,5 +1,5 @@
-import { readFile } from "node:fs/promises";
-import { z } from "zod";
+import { readFile } from 'node:fs/promises';
+import { z } from 'zod';
 
 /**
  * amplify_outputs.json is extensible via `backend.addOutput()`. We write
@@ -38,7 +38,7 @@ const OutputsSchema = z
 export type AmplifyOutputs = z.infer<typeof OutputsSchema>;
 
 export async function readAmplifyOutputs(path: string): Promise<AmplifyOutputs> {
-  const raw = await readFile(path, "utf8");
+  const raw = await readFile(path, 'utf8');
   const parsed = JSON.parse(raw);
   return OutputsSchema.parse(parsed);
 }

@@ -6,8 +6,8 @@ import {
   ScanCommand,
   TransactWriteCommand,
   UpdateCommand,
-} from "@aws-sdk/lib-dynamodb";
-import type { Logger } from "pino";
+} from '@aws-sdk/lib-dynamodb';
+import type { Logger } from 'pino';
 import type {
   ItemOf,
   MigrationContext,
@@ -15,8 +15,8 @@ import type {
   ScanOpts,
   SchemaShape,
   TransactOp,
-} from "../types.js";
-import { buildUpdateExpression } from "./updateExpression.js";
+} from '../types.js';
+import { buildUpdateExpression } from './updateExpression.js';
 
 export interface ContextDeps<S extends SchemaShape> {
   ddb: DynamoDBDocumentClient;
@@ -110,7 +110,7 @@ export function createContext<S extends SchemaShape>(deps: ContextDeps<S>): Migr
       const TransactItems = [] as unknown[];
       for (const op of ops) {
         const TableName = tableFor(op.model);
-        if (op.type === "put") {
+        if (op.type === 'put') {
           TransactItems.push({
             Put: {
               TableName,
@@ -118,7 +118,7 @@ export function createContext<S extends SchemaShape>(deps: ContextDeps<S>): Migr
               ...(op.condition ? { ConditionExpression: op.condition } : {}),
             },
           });
-        } else if (op.type === "delete") {
+        } else if (op.type === 'delete') {
           TransactItems.push({
             Delete: {
               TableName,

@@ -1,14 +1,14 @@
-import { createHash } from "node:crypto";
-import { mkdirSync, mkdtempSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
-import { createRequire } from "node:module";
-import { tmpdir } from "node:os";
-import { dirname, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
-import { CustomResource, Duration, RemovalPolicy, Stack, Tags } from "aws-cdk-lib";
-import { AttributeType, BillingMode, Table } from "aws-cdk-lib/aws-dynamodb";
-import { PolicyStatement } from "aws-cdk-lib/aws-iam";
-import { Code, Function as LambdaFunction, Runtime } from "aws-cdk-lib/aws-lambda";
-import { Provider } from "aws-cdk-lib/custom-resources";
+import { createHash } from 'node:crypto';
+import { mkdirSync, mkdtempSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
+import { tmpdir } from 'node:os';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { CustomResource, Duration, RemovalPolicy, type Stack, Tags } from 'aws-cdk-lib';
+import { AttributeType, BillingMode, Table } from 'aws-cdk-lib/aws-dynamodb';
+import { PolicyStatement } from 'aws-cdk-lib/aws-iam';
+import { Code, Function as LambdaFunction, Runtime } from 'aws-cdk-lib/aws-lambda';
+import { Provider } from 'aws-cdk-lib/custom-resources';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -27,7 +27,7 @@ export interface WithMigrationsOptions {
   /** Absolute path to the migrations directory to bundle into the runner Lambda. */
   migrationsDir: string;
   /** Behaviour on deploy. Default: "pending" (run pending migrations). */
-  runOnDeploy?: "pending" | "off";
+  runOnDeploy?: 'pending' | 'off';
   /** Lambda timeout; default 15 minutes. */
   timeout?: Duration;
   /** Retention policy for the internal state table. Defaults to RETAIN. */
@@ -37,7 +37,7 @@ export interface WithMigrationsOptions {
    * have changed. Defaults to "off" (silent). Set to "strict" for the
    * paranoid-by-default behaviour used by MikroORM/Flyway/etc.
    */
-  checksumPolicy?: "off" | "warn" | "strict";
+  checksumPolicy?: 'off' | 'warn' | 'strict';
   /**
    * Explicit physical name for the state table. Defaults to CDK auto-naming
    * (which produces long hashed names like `amplify-foo-sandbox-xxx-Amplify
@@ -77,8 +77,8 @@ export interface WithMigrationsOptions {
  *   - Publishes state-table + data-table mappings into `amplify_outputs.json`.
  */
 export function withMigrations(backend: AmplifyBackendLike, opts: WithMigrationsOptions): void {
-  const runOnDeploy = opts.runOnDeploy ?? "pending";
-  const migrationStack = backend.createStack("AmplifyMigrations");
+  const runOnDeploy = opts.runOnDeploy ?? 'pending';
+  const migrationStack = backend.createStack('AmplifyMigrations');
 
   // Tag propagation:
   // 1. Inherit every tag already on the parent Amplify backend stack
@@ -91,16 +91,16 @@ export function withMigrations(backend: AmplifyBackendLike, opts: WithMigrations
       Tags.of(migrationStack).add(k, v);
     }
   }
-  if (opts.tags && typeof opts.tags === "object") {
+  if (opts.tags && typeof opts.tags === 'object') {
     for (const [k, v] of Object.entries(opts.tags)) {
       Tags.of(migrationStack).add(k, v);
     }
   }
 
-  const stateTable = new Table(migrationStack, "StateTable", {
-    partitionKey: { name: "name", type: AttributeType.STRING },
+  const stateTable = new Table(migrationStack, 'StateTable', {
+    partitionKey: { name: 'name', type: AttributeType.STRING },
     billingMode: BillingMode.PAY_PER_REQUEST,
-    timeToLiveAttribute: "expiresAt",
+    timeToLiveAttribute: 'expiresAt',
     pointInTimeRecoverySpecification: { pointInTimeRecoveryEnabled: true },
     removalPolicy: opts.stateTableRemovalPolicy ?? RemovalPolicy.RETAIN,
     ...(opts.stateTableName ? { tableName: opts.stateTableName } : {}),
@@ -112,18 +112,18 @@ export function withMigrations(backend: AmplifyBackendLike, opts: WithMigrations
 
   const assetDir = opts.prebuiltAssetDir ?? buildLambdaAsset(opts.migrationsDir);
 
-  const runner = new LambdaFunction(migrationStack, "RunnerFn", {
+  const runner = new LambdaFunction(migrationStack, 'RunnerFn', {
     runtime: Runtime.NODEJS_20_X,
-    handler: "handler.handler",
+    handler: 'handler.handler',
     code: Code.fromAsset(assetDir),
     timeout: opts.timeout ?? Duration.minutes(15),
     memorySize: 1024,
     environment: {
       AM_STATE_TABLE: stateTable.tableName,
       AM_TABLES_JSON: JSON.stringify(tableMap),
-      AM_MIGRATIONS_DIR: "/var/task/migrations",
+      AM_MIGRATIONS_DIR: '/var/task/migrations',
       AM_RUN_MODE: runOnDeploy,
-      AM_CHECKSUM_POLICY: opts.checksumPolicy ?? "off",
+      AM_CHECKSUM_POLICY: opts.checksumPolicy ?? 'off',
     },
   });
 
@@ -137,25 +137,25 @@ export function withMigrations(backend: AmplifyBackendLike, opts: WithMigrations
     runner.addToRolePolicy(
       new PolicyStatement({
         actions: [
-          "dynamodb:GetItem",
-          "dynamodb:PutItem",
-          "dynamodb:UpdateItem",
-          "dynamodb:DeleteItem",
-          "dynamodb:Scan",
-          "dynamodb:Query",
-          "dynamodb:BatchGetItem",
-          "dynamodb:BatchWriteItem",
-          "dynamodb:TransactWriteItems",
-          "dynamodb:TransactGetItems",
+          'dynamodb:GetItem',
+          'dynamodb:PutItem',
+          'dynamodb:UpdateItem',
+          'dynamodb:DeleteItem',
+          'dynamodb:Scan',
+          'dynamodb:Query',
+          'dynamodb:BatchGetItem',
+          'dynamodb:BatchWriteItem',
+          'dynamodb:TransactWriteItems',
+          'dynamodb:TransactGetItems',
         ],
         resources: dataTableArns,
       }),
     );
   }
 
-  if (runOnDeploy !== "off") {
-    const provider = new Provider(migrationStack, "RunnerProvider", { onEventHandler: runner });
-    new CustomResource(migrationStack, "RunOnDeploy", {
+  if (runOnDeploy !== 'off') {
+    const provider = new Provider(migrationStack, 'RunnerProvider', { onEventHandler: runner });
+    new CustomResource(migrationStack, 'RunOnDeploy', {
       serviceToken: provider.serviceToken,
       // Change on every synth so CFN triggers an Update; Delete events are
       // short-circuited inside the handler.
@@ -168,7 +168,7 @@ export function withMigrations(backend: AmplifyBackendLike, opts: WithMigrations
       amplifyMigrations: {
         stateTable: stateTable.tableName,
         tables: tableMap,
-        version: "1.0.0-alpha.0",
+        version: '1.0.0-alpha.0',
       },
     },
   });
@@ -185,50 +185,50 @@ function buildLambdaAsset(migrationsDir: string): string {
   // emission) and directly under ESM via ampx. Prefer createRequire so it
   // works in both modes.
   const req = createRequire(import.meta.url);
-  const esbuild = req("esbuild") as typeof import("esbuild");
-  const out = mkdtempSync(join(tmpdir(), "amplify-migrations-"));
-  mkdirSync(join(out, "migrations"), { recursive: true });
+  const esbuild = req('esbuild') as typeof import('esbuild');
+  const out = mkdtempSync(join(tmpdir(), 'amplify-migrations-'));
+  mkdirSync(join(out, 'migrations'), { recursive: true });
 
-  const handlerEntry = resolve(__dirname, "runtime/runnerHandler.js");
+  const handlerEntry = resolve(__dirname, 'runtime/runnerHandler.js');
   esbuild.buildSync({
     entryPoints: [handlerEntry],
     bundle: true,
-    platform: "node",
-    target: "node20",
-    format: "cjs",
-    outfile: join(out, "handler.js"),
-    external: ["aws-sdk"],
-    sourcemap: "inline",
+    platform: 'node',
+    target: 'node20',
+    format: 'cjs',
+    outfile: join(out, 'handler.js'),
+    external: ['aws-sdk'],
+    sourcemap: 'inline',
   });
 
   for (const entry of readdirSync(migrationsDir)) {
     if (!/^Migration\d{14}.*\.(ts|mts|js|mjs)$/.test(entry)) continue;
     if (/\.schema\.(ts|js)$/.test(entry)) continue;
     const sourcePath = resolve(migrationsDir, entry);
-    const outBasename = entry.replace(/\.(ts|mts|mjs)$/, ".js");
+    const outBasename = entry.replace(/\.(ts|mts|mjs)$/, '.js');
     esbuild.buildSync({
       entryPoints: [sourcePath],
       bundle: true,
-      platform: "node",
-      target: "node20",
-      format: "cjs",
-      outfile: join(out, "migrations", outBasename),
-      external: ["aws-sdk"],
-      sourcemap: "inline",
+      platform: 'node',
+      target: 'node20',
+      format: 'cjs',
+      outfile: join(out, 'migrations', outBasename),
+      external: ['aws-sdk'],
+      sourcemap: 'inline',
     });
 
     // Write the source checksum as a sidecar so the runtime loader records
     // the same hash the CLI sees on disk — otherwise esbuild's bundled
     // output would have a different hash and checksum-drift checks would
     // always fail.
-    const sourceHash = createHash("sha256").update(readFileSync(sourcePath)).digest("hex");
+    const sourceHash = createHash('sha256').update(readFileSync(sourcePath)).digest('hex');
     writeFileSync(
-      join(out, "migrations", `${outBasename.replace(/\.js$/, "")}.sha256`),
+      join(out, 'migrations', `${outBasename.replace(/\.js$/, '')}.sha256`),
       sourceHash,
     );
   }
 
   // Marker file so we can assert the asset layout in tests.
-  writeFileSync(join(out, ".amplify-migrations-asset"), "v1");
+  writeFileSync(join(out, '.amplify-migrations-asset'), 'v1');
   return out;
 }

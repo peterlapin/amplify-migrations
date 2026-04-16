@@ -5,10 +5,10 @@ import {
   QueryCommand,
   ScanCommand,
   UpdateCommand,
-} from "@aws-sdk/lib-dynamodb";
-import type { MigrationRecord } from "../types.js";
+} from '@aws-sdk/lib-dynamodb';
+import type { MigrationRecord } from '../types.js';
 
-const LOCK_NAME = "__lock__";
+const LOCK_NAME = '__lock__';
 
 export interface LockHandle {
   holder: string;
@@ -34,15 +34,14 @@ export class StateStore {
         new PutCommand({
           TableName: this.tableName,
           Item: { name: LOCK_NAME, holder, expiresAt },
-          ConditionExpression:
-            "attribute_not_exists(#n) OR #e < :now",
-          ExpressionAttributeNames: { "#n": "name", "#e": "expiresAt" },
-          ExpressionAttributeValues: { ":now": now },
+          ConditionExpression: 'attribute_not_exists(#n) OR #e < :now',
+          ExpressionAttributeNames: { '#n': 'name', '#e': 'expiresAt' },
+          ExpressionAttributeValues: { ':now': now },
         }),
       );
       return { holder, expiresAt };
     } catch (err) {
-      if ((err as { name?: string }).name === "ConditionalCheckFailedException") {
+      if ((err as { name?: string }).name === 'ConditionalCheckFailedException') {
         throw new Error(
           `Could not acquire migration lock on "${this.tableName}". Another run is in progress.`,
         );
@@ -57,13 +56,13 @@ export class StateStore {
         new DeleteCommand({
           TableName: this.tableName,
           Key: { name: LOCK_NAME },
-          ConditionExpression: "#h = :h",
-          ExpressionAttributeNames: { "#h": "holder" },
-          ExpressionAttributeValues: { ":h": holder },
+          ConditionExpression: '#h = :h',
+          ExpressionAttributeNames: { '#h': 'holder' },
+          ExpressionAttributeValues: { ':h': holder },
         }),
       );
     } catch (err) {
-      if ((err as { name?: string }).name !== "ConditionalCheckFailedException") throw err;
+      if ((err as { name?: string }).name !== 'ConditionalCheckFailedException') throw err;
       // Someone else owns the lock now (ours expired). Leave it.
     }
   }
@@ -74,10 +73,10 @@ export class StateStore {
       new UpdateCommand({
         TableName: this.tableName,
         Key: { name: LOCK_NAME },
-        UpdateExpression: "SET #e = :e",
-        ConditionExpression: "#h = :h",
-        ExpressionAttributeNames: { "#e": "expiresAt", "#h": "holder" },
-        ExpressionAttributeValues: { ":e": expiresAt, ":h": holder },
+        UpdateExpression: 'SET #e = :e',
+        ConditionExpression: '#h = :h',
+        ExpressionAttributeNames: { '#e': 'expiresAt', '#h': 'holder' },
+        ExpressionAttributeValues: { ':e': expiresAt, ':h': holder },
       }),
     );
   }
@@ -94,9 +93,9 @@ export class StateStore {
       const out = await this.ddb.send(
         new ScanCommand({
           TableName: this.tableName,
-          FilterExpression: "#n <> :lock",
-          ExpressionAttributeNames: { "#n": "name" },
-          ExpressionAttributeValues: { ":lock": LOCK_NAME },
+          FilterExpression: '#n <> :lock',
+          ExpressionAttributeNames: { '#n': 'name' },
+          ExpressionAttributeValues: { ':lock': LOCK_NAME },
           ExclusiveStartKey,
         }),
       );
@@ -112,7 +111,7 @@ export class StateStore {
       if (!prev || prev.appliedAt < r.appliedAt) latest.set(mname, { ...r, migrationName: mname });
     }
     const applied: MigrationRecord[] = [];
-    for (const r of latest.values()) if (r.direction === "up") applied.push(r);
+    for (const r of latest.values()) if (r.direction === 'up') applied.push(r);
     applied.sort((a, b) => (a.migrationName ?? a.name).localeCompare(b.migrationName ?? b.name));
     return applied;
   }
@@ -132,8 +131,8 @@ export class StateStore {
       new PutCommand({
         TableName: this.tableName,
         Item: { ...record, name: key, migrationName: record.name },
-        ConditionExpression: "attribute_not_exists(#n)",
-        ExpressionAttributeNames: { "#n": "name" },
+        ConditionExpression: 'attribute_not_exists(#n)',
+        ExpressionAttributeNames: { '#n': 'name' },
       }),
     );
   }
@@ -144,8 +143,8 @@ export class StateStore {
     const out = await this.ddb.send(
       new ScanCommand({
         TableName: this.tableName,
-        FilterExpression: "migrationName = :mn",
-        ExpressionAttributeValues: { ":mn": name },
+        FilterExpression: 'migrationName = :mn',
+        ExpressionAttributeValues: { ':mn': name },
       }),
     );
     return ((out.Items ?? []) as MigrationRecord[]).sort((a, b) =>
@@ -160,8 +159,8 @@ export class StateStore {
       new QueryCommand({
         TableName: this.tableName,
         IndexName: gsiName,
-        KeyConditionExpression: "migrationName = :mn",
-        ExpressionAttributeValues: { ":mn": name },
+        KeyConditionExpression: 'migrationName = :mn',
+        ExpressionAttributeValues: { ':mn': name },
       }),
     );
     return (out.Items ?? []) as MigrationRecord[];

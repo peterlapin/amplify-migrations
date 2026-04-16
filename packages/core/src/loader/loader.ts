@@ -1,16 +1,16 @@
-import { createHash } from "node:crypto";
-import { readdir, readFile } from "node:fs/promises";
-import { pathToFileURL } from "node:url";
-import { join, resolve } from "node:path";
-import type { AmplifyMigration, SchemaShape } from "../types.js";
+import { createHash } from 'node:crypto';
+import { readFile, readdir } from 'node:fs/promises';
+import { join, resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
+import type { AmplifyMigration, SchemaShape } from '../types.js';
 
 const MIGRATION_FILE = /^Migration(\d{14})(?:-([A-Za-z0-9-_]+))?\.(?:ts|js|mjs|cjs)$/;
 
 export interface DiscoveredMigration<S extends SchemaShape = SchemaShape> {
-  name: string;          // full basename without extension, e.g. Migration20260415120000-backfill
-  timestamp: string;     // 14-digit
-  filePath: string;      // absolute
-  checksum: string;      // sha256 of file contents
+  name: string; // full basename without extension, e.g. Migration20260415120000-backfill
+  timestamp: string; // 14-digit
+  filePath: string; // absolute
+  checksum: string; // sha256 of file contents
   load: () => Promise<new () => AmplifyMigration<S>>;
 }
 
@@ -22,7 +22,7 @@ export async function discoverMigrations<S extends SchemaShape = SchemaShape>(
   try {
     entries = await readdir(abs);
   } catch (err) {
-    if ((err as NodeJS.ErrnoException).code === "ENOENT") return [];
+    if ((err as NodeJS.ErrnoException).code === 'ENOENT') return [];
     throw err;
   }
 
@@ -30,10 +30,10 @@ export async function discoverMigrations<S extends SchemaShape = SchemaShape>(
   for (const entry of entries) {
     const m = MIGRATION_FILE.exec(entry);
     if (!m) continue;
-    if (entry.endsWith(".schema.ts") || entry.endsWith(".schema.js")) continue;
+    if (entry.endsWith('.schema.ts') || entry.endsWith('.schema.js')) continue;
     const timestamp = m[1] as string;
     const filePath = join(abs, entry);
-    const name = entry.replace(/\.(ts|js|mjs|cjs)$/, "");
+    const name = entry.replace(/\.(ts|js|mjs|cjs)$/, '');
 
     // Prefer a `<name>.sha256` sidecar if present — the CDK bundler writes
     // these next to the esbuild output so the Lambda records the SOURCE
@@ -41,10 +41,10 @@ export async function discoverMigrations<S extends SchemaShape = SchemaShape>(
     // hashes would always diverge.
     let checksum: string;
     try {
-      checksum = (await readFile(join(abs, `${name}.sha256`), "utf8")).trim();
+      checksum = (await readFile(join(abs, `${name}.sha256`), 'utf8')).trim();
     } catch {
       const buf = await readFile(filePath);
-      checksum = createHash("sha256").update(buf).digest("hex");
+      checksum = createHash('sha256').update(buf).digest('hex');
     }
     out.push({
       name,
@@ -63,8 +63,8 @@ export async function discoverMigrations<S extends SchemaShape = SchemaShape>(
           mod?.[name],
           mod,
         ];
-        const cls = candidates.find((c) => typeof c === "function");
-        if (typeof cls !== "function") {
+        const cls = candidates.find((c) => typeof c === 'function');
+        if (typeof cls !== 'function') {
           throw new Error(
             `Migration "${name}" must default-export a class extending AmplifyMigration`,
           );
@@ -78,7 +78,7 @@ export async function discoverMigrations<S extends SchemaShape = SchemaShape>(
 }
 
 export function nextTimestamp(now: Date = new Date()): string {
-  const pad = (n: number, w = 2) => String(n).padStart(w, "0");
+  const pad = (n: number, w = 2) => String(n).padStart(w, '0');
   return (
     String(now.getUTCFullYear()) +
     pad(now.getUTCMonth() + 1) +

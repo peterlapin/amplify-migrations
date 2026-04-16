@@ -2,6 +2,6 @@
 // Do not rely on `../data/resource.ts` — it evolves; this file must not.
 export type Schema = {
   models: {
-    Todo: { identifier: readonly ["id"] };
+    Todo: { identifier: readonly ['id'] };
   };
 };

@@ -1,4 +1,4 @@
-import { a, defineData, type ClientSchema } from "@aws-amplify/backend";
+import { type ClientSchema, a, defineData } from '@aws-amplify/backend';
 
 /**
  * Minimal Amplify Gen 2 schema for the migration example.

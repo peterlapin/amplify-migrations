@@ -1,5 +1,5 @@
-import { describe, it } from "node:test";
-import assert from "node:assert/strict";
+import assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 
 // We cannot import the real StateStore here because it pulls in
 // @aws-sdk/lib-dynamodb. Instead we exercise the StateStore's algorithm via
@@ -18,8 +18,8 @@ class FakeTable {
     const existing = this.items.get(item.name);
     if (opts?.ifAbsent && existing) {
       const now = Math.floor(Date.now() / 1000);
-      if (typeof existing.expiresAt === "number" && existing.expiresAt >= now) {
-        throw Object.assign(new Error("cc"), { name: "ConditionalCheckFailedException" });
+      if (typeof existing.expiresAt === 'number' && existing.expiresAt >= now) {
+        throw Object.assign(new Error('cc'), { name: 'ConditionalCheckFailedException' });
       }
     }
     this.items.set(item.name, item);
@@ -28,7 +28,7 @@ class FakeTable {
   delete(name: string, holderMatches?: string) {
     const existing = this.items.get(name);
     if (holderMatches && existing?.holder !== holderMatches) {
-      throw Object.assign(new Error("cc"), { name: "ConditionalCheckFailedException" });
+      throw Object.assign(new Error('cc'), { name: 'ConditionalCheckFailedException' });
     }
     this.items.delete(name);
   }
@@ -36,42 +36,45 @@ class FakeTable {
 
 // Port the lock semantics so we test the algorithm itself.
 function acquireLock(t: FakeTable, holder: string, ttl: number) {
-  t.put({ name: "__lock__", holder, expiresAt: Math.floor(Date.now() / 1000) + ttl }, { ifAbsent: true });
+  t.put(
+    { name: '__lock__', holder, expiresAt: Math.floor(Date.now() / 1000) + ttl },
+    { ifAbsent: true },
+  );
 }
 function releaseLock(t: FakeTable, holder: string) {
   try {
-    t.delete("__lock__", holder);
+    t.delete('__lock__', holder);
   } catch (err) {
-    if ((err as { name?: string }).name !== "ConditionalCheckFailedException") throw err;
+    if ((err as { name?: string }).name !== 'ConditionalCheckFailedException') throw err;
   }
 }
 
-describe("state store algorithm (fake table)", () => {
-  it("second acquire is rejected while first holds the lock", () => {
+describe('state store algorithm (fake table)', () => {
+  it('second acquire is rejected while first holds the lock', () => {
     const t = new FakeTable();
-    acquireLock(t, "a", 60);
-    assert.throws(() => acquireLock(t, "b", 60), /ConditionalCheck/);
+    acquireLock(t, 'a', 60);
+    assert.throws(() => acquireLock(t, 'b', 60), /ConditionalCheck/);
   });
 
-  it("second acquire succeeds after release", () => {
+  it('second acquire succeeds after release', () => {
     const t = new FakeTable();
-    acquireLock(t, "a", 60);
-    releaseLock(t, "a");
-    acquireLock(t, "b", 60);
-    assert.equal((t.items.get("__lock__") as { holder: string }).holder, "b");
+    acquireLock(t, 'a', 60);
+    releaseLock(t, 'a');
+    acquireLock(t, 'b', 60);
+    assert.equal((t.items.get('__lock__') as { holder: string }).holder, 'b');
   });
 
-  it("second acquire succeeds after TTL expiry", () => {
+  it('second acquire succeeds after TTL expiry', () => {
     const t = new FakeTable();
-    acquireLock(t, "a", -1); // already-expired TTL
-    acquireLock(t, "b", 60);
-    assert.equal((t.items.get("__lock__") as { holder: string }).holder, "b");
+    acquireLock(t, 'a', -1); // already-expired TTL
+    acquireLock(t, 'b', 60);
+    assert.equal((t.items.get('__lock__') as { holder: string }).holder, 'b');
   });
 
-  it("release by non-holder is a silent no-op", () => {
+  it('release by non-holder is a silent no-op', () => {
     const t = new FakeTable();
-    acquireLock(t, "a", 60);
-    releaseLock(t, "someone-else"); // should not throw
-    assert.ok(t.items.get("__lock__"), "lock must still be held");
+    acquireLock(t, 'a', 60);
+    releaseLock(t, 'someone-else'); // should not throw
+    assert.ok(t.items.get('__lock__'), 'lock must still be held');
   });
 });

@@ -1,5 +1,5 @@
-import type { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
-import type { Logger } from "pino";
+import type { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
+import type { Logger } from 'pino';
 
 /**
  * A minimal shape the runner needs to know about the user's Amplify schema.
@@ -10,12 +10,13 @@ export type SchemaShape = {
   models: Record<string, { identifier: readonly string[] }>;
 };
 
-export type ModelName<S extends SchemaShape> = keyof S["models"] & string;
+export type ModelName<S extends SchemaShape> = keyof S['models'] & string;
 
-export type ItemOf<S extends SchemaShape, M extends ModelName<S>> =
-  // Authors pin their own Schema snapshot, so we allow a loose record here
-  // and let their typed `ctx.put<"Todo">(...)` calls narrow it in user code.
-  Record<string, unknown> & { [K in S["models"][M]["identifier"][number]]: string };
+// Authors pin their own Schema snapshot, so we allow a loose record here
+// and let their typed `ctx.put<"Todo">(...)` calls narrow it in user code.
+export type ItemOf<S extends SchemaShape, M extends ModelName<S>> = Record<string, unknown> & {
+  [K in S['models'][M]['identifier'][number]]: string;
+};
 
 export interface MigrationContext<S extends SchemaShape = SchemaShape> {
   /** Resolved physical DynamoDB table names keyed by model name. */
@@ -25,7 +26,10 @@ export interface MigrationContext<S extends SchemaShape = SchemaShape> {
   readonly logger: Logger;
   readonly abortSignal?: AbortSignal;
 
-  get<M extends ModelName<S>>(model: M, key: Record<string, unknown>): Promise<ItemOf<S, M> | undefined>;
+  get<M extends ModelName<S>>(
+    model: M,
+    key: Record<string, unknown>,
+  ): Promise<ItemOf<S, M> | undefined>;
   put<M extends ModelName<S>>(model: M, item: ItemOf<S, M>): Promise<void>;
   update<M extends ModelName<S>>(
     model: M,
@@ -45,9 +49,9 @@ export interface ScanOpts {
 }
 
 export type TransactOp =
-  | { type: "put"; model: string; item: Record<string, unknown>; condition?: string }
-  | { type: "update"; model: string; key: Record<string, unknown>; patch: Record<string, unknown> }
-  | { type: "delete"; model: string; key: Record<string, unknown>; condition?: string };
+  | { type: 'put'; model: string; item: Record<string, unknown>; condition?: string }
+  | { type: 'update'; model: string; key: Record<string, unknown>; patch: Record<string, unknown> }
+  | { type: 'delete'; model: string; key: Record<string, unknown>; condition?: string };
 
 export abstract class AmplifyMigration<S extends SchemaShape = SchemaShape> {
   static description?: string;
@@ -64,7 +68,7 @@ export interface MigrationRecord {
   appliedAt: string; // ISO
   durationMs: number;
   batch: number;
-  direction: "up" | "down";
+  direction: 'up' | 'down';
 }
 
 /**
@@ -79,7 +83,7 @@ export interface MigrationRecord {
  *              script than what actually ran in prod. Opt in when you want
  *              strong guarantees.
  */
-export type ChecksumPolicy = "off" | "warn" | "strict";
+export type ChecksumPolicy = 'off' | 'warn' | 'strict';
 
 export interface MigrationsConfig<S extends SchemaShape = SchemaShape> {
   migrationsDir: string;

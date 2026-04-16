@@ -1,5 +1,5 @@
-import { mkdir, writeFile } from "node:fs/promises";
-import { join, resolve } from "node:path";
+import { mkdir, writeFile } from 'node:fs/promises';
+import { join, resolve } from 'node:path';
 
 /**
  * Intentionally duplicated from loader/loader.ts so this module has no
@@ -7,7 +7,7 @@ import { join, resolve } from "node:path";
  * the rest of the runner is set up.
  */
 function nextTimestamp(now: Date = new Date()): string {
-  const pad = (n: number) => String(n).padStart(2, "0");
+  const pad = (n: number) => String(n).padStart(2, '0');
   return (
     String(now.getUTCFullYear()) +
     pad(now.getUTCMonth() + 1) +
@@ -38,9 +38,9 @@ export async function scaffoldMigration(opts: {
   now?: Date;
 }): Promise<ScaffoldResult> {
   const { dir } = opts;
-  const slug = opts.name.replace(/[^A-Za-z0-9-_]/g, "-");
+  const slug = opts.name.replace(/[^A-Za-z0-9-_]/g, '-');
   const ts = nextTimestamp(opts.now);
-  const basename = `Migration${ts}${slug ? `-${slug}` : ""}`;
+  const basename = `Migration${ts}${slug ? `-${slug}` : ''}`;
   const absDir = resolve(dir);
   await mkdir(absDir, { recursive: true });
 
@@ -58,7 +58,7 @@ export type Schema = {
   };
 };
 `;
-  await writeFile(schemaSnapshotPath, opts.schemaSnapshotSource ?? defaultSnapshot, "utf8");
+  await writeFile(schemaSnapshotPath, opts.schemaSnapshotSource ?? defaultSnapshot, 'utf8');
 
   const migrationSource = `import { AmplifyMigration, type MigrationContext } from "@amplify-migrations/core";
 import type { Schema } from "./${basename}.schema.js";
@@ -77,6 +77,6 @@ export default class extends AmplifyMigration<Schema> {
   }
 }
 `;
-  await writeFile(migrationPath, migrationSource, "utf8");
+  await writeFile(migrationPath, migrationSource, 'utf8');
   return { migrationPath, schemaSnapshotPath, name: basename };
 }
