@@ -61,14 +61,18 @@ describe('state store algorithm (fake table)', () => {
     acquireLock(t, 'a', 60);
     releaseLock(t, 'a');
     acquireLock(t, 'b', 60);
-    assert.equal((t.items.get('__lock__') as { holder: string }).holder, 'b');
+    const lock = t.items.get('__lock__');
+    assert.ok(lock, 'expected lock item to exist');
+    assert.equal(lock.holder, 'b');
   });
 
   it('second acquire succeeds after TTL expiry', () => {
     const t = new FakeTable();
     acquireLock(t, 'a', -1); // already-expired TTL
     acquireLock(t, 'b', 60);
-    assert.equal((t.items.get('__lock__') as { holder: string }).holder, 'b');
+    const lock = t.items.get('__lock__');
+    assert.ok(lock, 'expected lock item to exist');
+    assert.equal(lock.holder, 'b');
   });
 
   it('release by non-holder is a silent no-op', () => {

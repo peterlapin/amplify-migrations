@@ -1,9 +1,10 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "rootDir": "./src",
+    "rootDir": ".",
     "outDir": "./dist",
-    "types": ["node"]
+    "types": ["node"],
+    "allowImportingTsExtensions": true
   },
   "include": ["src/**/*", "test/**/*"]
 }
