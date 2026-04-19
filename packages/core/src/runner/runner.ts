@@ -35,6 +35,8 @@ export interface RunResult {
   warnings: string[];
 }
 
+const MIN_LOCK_TTL_SECONDS = 15;
+
 export class Runner<S extends SchemaShape = SchemaShape> {
   private readonly logger: Logger;
   private readonly ddb: DynamoDBDocumentClient;
@@ -63,6 +65,13 @@ export class Runner<S extends SchemaShape = SchemaShape> {
     config: MigrationsConfig<S>,
     deps?: { ddb?: DynamoDBDocumentClient },
   ): Promise<Runner<S>> {
+    const lockTtlSeconds = config.lockTtlSeconds ?? 600;
+    if (lockTtlSeconds < MIN_LOCK_TTL_SECONDS) {
+      throw new Error(
+        `lockTtlSeconds must be at least ${MIN_LOCK_TTL_SECONDS} seconds so the advisory lock can be renewed before it expires.`,
+      );
+    }
+
     let stateTableName: string | undefined;
     let modelTables: Record<string, string> = {};
     let region = config.region;
@@ -297,7 +306,7 @@ export class Runner<S extends SchemaShape = SchemaShape> {
    * invoke the supplied `onLost` callback — the caller is expected to abort.
    */
   private startHeartbeat(onLost: (reason: string) => void): NodeJS.Timeout {
-    const intervalMs = Math.max(5_000, (this.lockTtl * 1000) / 3);
+    const intervalMs = Math.min(5_000, (this.lockTtl * 1000) / 3);
     let consecutiveFailures = 0;
     return setInterval(() => {
       this.state.renewLock(this.holderId, this.lockTtl).then(

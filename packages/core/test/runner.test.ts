@@ -39,6 +39,17 @@ afterEach(() => {
 });
 
 describe('Runner', () => {
+  it('rejects unsafe lock TTLs at runner creation', async () => {
+    await assert.rejects(
+      () =>
+        Runner.create(
+          { migrationsDir: '/tmp/does-not-matter', lockTtlSeconds: 14 },
+          { ddb: { send: async () => ({}) } as never },
+        ),
+      /lockTtlSeconds must be at least 15 seconds/,
+    );
+  });
+
   it('rejects unknown up --to targets during dry runs', async () => {
     const dir = await mkdtemp(join(tmpdir(), 'am-runner-'));
     await writeMigration(dir, 'Migration20260415120000-order');
@@ -189,20 +200,22 @@ describe('Runner', () => {
     );
 
     const runner = await Runner.create(
-      { migrationsDir: dir, lockTtlSeconds: 1 },
+      { migrationsDir: dir, lockTtlSeconds: 15 },
       { ddb: { send: async () => ({}) } as never },
     );
     const state = makeRunnerState(runner);
 
     let renewCalls = 0;
     let cleared = false;
+    let intervalMs = 0;
     const fakeTimer = {
       unref() {
         return fakeTimer;
       },
     } as unknown as NodeJS.Timeout;
 
-    globalThis.setInterval = ((callback: Parameters<typeof setInterval>[0]) => {
+    globalThis.setInterval = ((callback: Parameters<typeof setInterval>[0], delay?: number) => {
+      intervalMs = Number(delay ?? 0);
       queueMicrotask(() => {
         if (typeof callback === 'function') callback();
       });
@@ -225,6 +238,7 @@ describe('Runner', () => {
 
     assert.ok(renewCalls >= 1);
     assert.ok(cleared);
+    assert.equal(intervalMs, 5_000);
   });
 
   it('releases the lock when checksum enforcement rejects the run', async () => {
