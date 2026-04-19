@@ -7,7 +7,7 @@
   "workspaces": ["packages/*", "examples/*"],
   "scripts": {
     "build": "pnpm -r --filter \"./packages/*\" build",
-    "test": "node --no-warnings --import @swc-node/register/esm-register --test --test-reporter=spec 'packages/core/test/*.test.ts' 'packages/cli/test/*.test.ts' 'packages/cdk/test/*.test.ts'",
+    "test": "node --no-warnings --import @swc-node/register/esm-register --test --test-reporter=spec packages/core/test/*.test.ts packages/cli/test/*.test.ts packages/cdk/test/*.test.ts",
     "lint": "biome check .",
     "format": "biome format --write .",
     "typecheck": "pnpm -r --filter \"./packages/*\" typecheck",
