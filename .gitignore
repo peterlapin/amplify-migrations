@@ -19,6 +19,7 @@ node_modules/
 dist/
 build/
 lib/
+.tmp/
 *.tsbuildinfo
 .turbo/
 .tsup/
