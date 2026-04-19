@@ -39,6 +39,114 @@ afterEach(() => {
 });
 
 describe('Runner', () => {
+  it('rejects unknown up --to targets during dry runs', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'am-runner-'));
+    await writeMigration(dir, 'Migration20260415120000-order');
+
+    const runner = await Runner.create(
+      { migrationsDir: dir },
+      { ddb: { send: async () => ({}) } as never },
+    );
+
+    await assert.rejects(
+      () => runner.up({ dry: true, to: 'Migration20260415120000-missing' }),
+      /Unknown migration target/,
+    );
+  });
+
+  it('rejects unknown up --to targets and releases the lock', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'am-runner-'));
+    await writeMigration(dir, 'Migration20260415120000-order');
+
+    const runner = await Runner.create(
+      { migrationsDir: dir },
+      { ddb: { send: async () => ({}) } as never },
+    );
+    const state = makeRunnerState(runner);
+
+    let released = 0;
+    state.acquireLock = async () => ({});
+    state.listApplied = async () => [];
+    state.nextBatch = async () => 1;
+    state.record = async () => undefined;
+    state.renewLock = async () => undefined;
+    state.releaseLock = async () => {
+      released += 1;
+    };
+
+    await assert.rejects(
+      () => runner.up({ to: 'Migration20260415120000-missing' }),
+      /Unknown migration target/,
+    );
+    assert.equal(released, 1);
+  });
+
+  it('rejects unknown down --to targets during dry runs', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'am-runner-'));
+    const migrationName = 'Migration20260415120000-order';
+    await writeMigration(dir, migrationName);
+
+    const runner = await Runner.create(
+      { migrationsDir: dir },
+      { ddb: { send: async () => ({}) } as never },
+    );
+    const state = makeRunnerState(runner);
+    state.listApplied = async () => [
+      {
+        name: `${migrationName}#up#2026-04-15T12:00:00.000Z`,
+        migrationName,
+        checksum: '1111111111111111111111111111111111111111111111111111111111111111',
+        appliedAt: '2026-04-15T12:00:00.000Z',
+        durationMs: 1,
+        batch: 1,
+        direction: 'up',
+      },
+    ];
+
+    await assert.rejects(
+      () => runner.down({ dry: true, to: 'Migration20260415120000-missing' }),
+      /Unknown applied migration target/,
+    );
+  });
+
+  it('rejects unknown down --to targets and releases the lock', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'am-runner-'));
+    const migrationName = 'Migration20260415120000-order';
+    await writeMigration(dir, migrationName);
+
+    const runner = await Runner.create(
+      { migrationsDir: dir },
+      { ddb: { send: async () => ({}) } as never },
+    );
+    const state = makeRunnerState(runner);
+
+    let released = 0;
+    state.acquireLock = async () => ({});
+    state.listApplied = async () => [
+      {
+        name: `${migrationName}#up#2026-04-15T12:00:00.000Z`,
+        migrationName,
+        checksum: '1111111111111111111111111111111111111111111111111111111111111111',
+        appliedAt: '2026-04-15T12:00:00.000Z',
+        durationMs: 1,
+        batch: 1,
+        direction: 'up',
+      },
+    ];
+    state.nextBatch = async () => 1;
+    state.record = async () => undefined;
+    state.renewLock = async () => undefined;
+    state.releaseLock = async () => {
+      released += 1;
+    };
+
+    await assert.rejects(
+      () => runner.down({ to: 'Migration20260415120000-missing' }),
+      /Unknown applied migration target/,
+    );
+    assert.equal(released, 1);
+  });
+
   it('acquires the lock before reading applied migrations during up()', async () => {
     const dir = await mkdtemp(join(tmpdir(), 'am-runner-'));
     await writeMigration(dir, 'Migration20260415120000-order');

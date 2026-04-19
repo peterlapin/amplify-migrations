@@ -123,30 +123,21 @@ export class Runner<S extends SchemaShape = SchemaShape> {
   /** Returns a list of warnings if applied migrations have drifted on disk. */
   async checksumDrift(): Promise<string[]> {
     const { disk, applied } = await this.list();
-    const byName = new Map(disk.map((d) => [d.name, d]));
-    const warnings: string[] = [];
-    for (const rec of applied) {
-      const mname = rec.migrationName ?? rec.name;
-      const d = byName.get(mname);
-      if (d && rec.checksum && d.checksum !== rec.checksum) {
-        const applied = rec.checksum.slice(0, 12);
-        const disk = d.checksum.slice(0, 12);
-        warnings.push(`checksum drift for "${mname}": applied ${applied} disk ${disk}`);
-      }
-    }
-    return warnings;
+    return this.checksumDriftFrom(disk, applied);
   }
 
   async up(opts: UpOptions = {}): Promise<RunResult> {
     if (opts.dry) {
-      const pending = await this.pending();
+      const { disk, applied } = await this.list();
+      this.assertKnownUpTarget(opts.to, disk);
+      const pending = this.pendingFrom(disk, applied);
       const upTo = opts.to;
       const toRun = upTo ? pending.filter((m) => m.name <= upTo) : pending;
       return {
         applied: [],
         pending: toRun.map((m) => m.name),
         skipped: [],
-        warnings: await this.checksumDrift(),
+        warnings: this.checksumDriftFrom(disk, applied),
       };
     }
 
@@ -157,12 +148,14 @@ export class Runner<S extends SchemaShape = SchemaShape> {
     let heartbeat: NodeJS.Timeout | undefined;
     let lockLostReason: string | undefined;
     try {
-      warnings = await this.checksumDrift();
+      const { disk, applied: alreadyApplied } = await this.list();
+      this.assertKnownUpTarget(opts.to, disk);
+      warnings = this.checksumDriftFrom(disk, alreadyApplied);
       this.enforceChecksumPolicy(warnings, opts.allowChecksumMismatch);
       heartbeat = this.startHeartbeat((reason) => {
         lockLostReason = reason;
       });
-      const pending = await this.pending();
+      const pending = this.pendingFrom(disk, alreadyApplied);
       const upTo = opts.to;
       const toRun = upTo ? pending.filter((m) => m.name <= upTo) : pending;
       const batch = await this.state.nextBatch();
@@ -183,6 +176,7 @@ export class Runner<S extends SchemaShape = SchemaShape> {
   async down(opts: DownOptions = {}): Promise<RunResult> {
     if (opts.dry) {
       const { applied } = await this.list();
+      this.assertKnownDownTarget(opts.to, applied);
       const mname = (r: MigrationRecord) => r.migrationName ?? r.name;
       const sorted = [...applied].sort((a, b) => mname(b).localeCompare(mname(a)));
       const downTo = opts.to;
@@ -199,10 +193,9 @@ export class Runner<S extends SchemaShape = SchemaShape> {
     });
     const results: MigrationRecord[] = [];
     try {
-      const { applied } = await this.list();
-      const diskByName = new Map(
-        (await discoverMigrations<S>(this.config.migrationsDir)).map((m) => [m.name, m]),
-      );
+      const { disk, applied } = await this.list();
+      this.assertKnownDownTarget(opts.to, applied);
+      const diskByName = new Map(disk.map((m) => [m.name, m]));
       const mname = (r: MigrationRecord) => r.migrationName ?? r.name;
       const sorted = [...applied].sort((a, b) => mname(b).localeCompare(mname(a)));
       const downTo = opts.to;
@@ -238,6 +231,32 @@ export class Runner<S extends SchemaShape = SchemaShape> {
     return { applied: results, pending: [], skipped: [], warnings: [] };
   }
 
+  private pendingFrom(
+    disk: DiscoveredMigration<S>[],
+    applied: MigrationRecord[],
+  ): DiscoveredMigration<S>[] {
+    const appliedNames = new Set(applied.map((r) => r.migrationName ?? r.name));
+    return disk.filter((m) => !appliedNames.has(m.name));
+  }
+
+  private assertKnownUpTarget(target: string | undefined, disk: DiscoveredMigration<S>[]): void {
+    if (!target) return;
+    if (disk.some((m) => m.name === target)) return;
+    const available = disk.map((m) => m.name);
+    throw new Error(
+      `Unknown migration target "${target}". Available on disk: ${available.join(', ') || '(none)'}`,
+    );
+  }
+
+  private assertKnownDownTarget(target: string | undefined, applied: MigrationRecord[]): void {
+    if (!target) return;
+    const appliedNames = [...new Set(applied.map((r) => r.migrationName ?? r.name))];
+    if (appliedNames.includes(target)) return;
+    throw new Error(
+      `Unknown applied migration target "${target}". Currently applied: ${appliedNames.join(', ') || '(none)'}`,
+    );
+  }
+
   /** Applies the configured ChecksumPolicy to a set of drift warnings. */
   private enforceChecksumPolicy(warnings: string[], allowOverride?: boolean): void {
     if (warnings.length === 0) return;
@@ -252,6 +271,23 @@ export class Runner<S extends SchemaShape = SchemaShape> {
     throw new Error(
       `Refusing to run: ${warnings.length} applied migration(s) have drifted on disk.\n  ${detail}\nPass --allow-checksum-mismatch, relax checksumPolicy, or restore the files.`,
     );
+  }
+
+  private checksumDriftFrom(disk: DiscoveredMigration<S>[], applied: MigrationRecord[]): string[] {
+    const byName = new Map(disk.map((d) => [d.name, d]));
+    const warnings: string[] = [];
+    for (const rec of applied) {
+      const mname = rec.migrationName ?? rec.name;
+      const d = byName.get(mname);
+      if (d && rec.checksum && d.checksum !== rec.checksum) {
+        const appliedChecksum = rec.checksum.slice(0, 12);
+        const diskChecksum = d.checksum.slice(0, 12);
+        warnings.push(
+          `checksum drift for "${mname}": applied ${appliedChecksum} disk ${diskChecksum}`,
+        );
+      }
+    }
+    return warnings;
   }
 
   /**
