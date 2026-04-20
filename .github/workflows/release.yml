@@ -28,6 +28,10 @@ jobs:
           cache: pnpm
           registry-url: https://registry.npmjs.org
       - run: pnpm install --frozen-lockfile
+      - name: Debug npm identity
+        run: |
+          npm whoami
+          npm org ls lapinsoft
       - uses: changesets/action@v1
         with:
           publish: pnpm release
