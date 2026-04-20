@@ -12,7 +12,7 @@ const program = new Command();
 program
   .name('amplify-migrations')
   .description('MikroORM-style migrations for AWS Amplify Data (Gen 2)')
-  .version('1.0.0-alpha.0');
+  .version('1.0.0-alpha.1');
 
 program
   .command('create <name>')

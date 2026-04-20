@@ -1,6 +1,6 @@
 {
   "name": "@lapinsoft/data-migrations-cli",
-  "version": "1.0.0-alpha.0",
+  "version": "1.0.0-alpha.1",
   "description": "CLI for amplify-migrations",
   "license": "MIT",
   "type": "module",

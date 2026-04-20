@@ -1,6 +1,6 @@
 {
   "name": "@lapinsoft/data-migrations-cdk",
-  "version": "1.0.0-alpha.0",
+  "version": "1.0.0-alpha.1",
   "description": "Amplify Gen 2 backend integration for amplify-migrations",
   "license": "MIT",
   "type": "module",

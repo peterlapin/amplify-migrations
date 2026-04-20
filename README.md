@@ -1,6 +1,6 @@
 # amplify-migrations
 
-> **⚠️ Alpha** — `1.0.0-alpha.0`. Works end-to-end and has live-deploy test coverage, but the public API, state-table schema, and config file shape may still change before `1.0.0` stable. Not recommended for production workloads yet. Feedback welcome via GitHub issues.
+> **⚠️ Alpha** — `1.0.0-alpha.1`. Works end-to-end and has live-deploy test coverage, but the public API, state-table schema, and config file shape may still change before `1.0.0` stable. Not recommended for production workloads yet. Feedback welcome via GitHub issues.
 
 [MikroORM][mikro-orm]-style database migrations for **[AWS Amplify Data (Gen 2)][amplify-data]**, targeting the DynamoDB tables Amplify generates from your `a.schema(...)`.
 
@@ -166,7 +166,7 @@ examples/
 
 ## Status
 
-`1.0.0-alpha.0` — manual prerelease only. Use the `next` dist-tag while the API is still moving. See [DESIGN.md §10](./DESIGN.md) for the roadmap.
+`1.0.0-alpha.1` — manual prerelease only. Use the `next` dist-tag while the API is still moving. See [DESIGN.md §10](./DESIGN.md) for the roadmap.
 
 ## License
 

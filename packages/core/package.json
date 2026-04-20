@@ -1,6 +1,6 @@
 {
   "name": "@lapinsoft/data-migrations-core",
-  "version": "1.0.0-alpha.0",
+  "version": "1.0.0-alpha.1",
   "description": "Core migration runner for AWS Amplify Data (Gen 2)",
   "license": "MIT",
   "type": "module",
