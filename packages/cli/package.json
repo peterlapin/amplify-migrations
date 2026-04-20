@@ -30,11 +30,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/peter-lapin/amplify-migrations.git",
+    "url": "git+https://github.com/peterlapin/amplify-migrations.git",
     "directory": "packages/cli"
   },
-  "homepage": "https://github.com/peter-lapin/amplify-migrations#readme",
-  "bugs": { "url": "https://github.com/peter-lapin/amplify-migrations/issues" },
+  "homepage": "https://github.com/peterlapin/amplify-migrations#readme",
+  "bugs": { "url": "https://github.com/peterlapin/amplify-migrations/issues" },
   "keywords": ["amplify", "aws", "dynamodb", "migrations", "cli", "gen2"],
   "engines": { "node": ">=22" }
 }
