@@ -6,7 +6,7 @@ Minimal end-to-end example that deploys a Todo model and runs a seed/backfill mi
 
 ## Prerequisites
 
-- Node >= 20
+- Node >= 22
 - An AWS profile with permissions to run `ampx sandbox` (creates Cognito, AppSync, DynamoDB, Lambda)
 - `pnpm install` at the repo root
 

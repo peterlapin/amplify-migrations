@@ -43,5 +43,5 @@
   "homepage": "https://github.com/peter-lapin/amplify-migrations#readme",
   "bugs": { "url": "https://github.com/peter-lapin/amplify-migrations/issues" },
   "keywords": ["amplify", "aws", "dynamodb", "migrations", "mikro-orm", "gen2", "appsync"],
-  "engines": { "node": ">=20" }
+  "engines": { "node": ">=22" }
 }

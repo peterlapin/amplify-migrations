@@ -50,5 +50,5 @@
   "homepage": "https://github.com/peter-lapin/amplify-migrations#readme",
   "bugs": { "url": "https://github.com/peter-lapin/amplify-migrations/issues" },
   "keywords": ["amplify", "aws", "cdk", "dynamodb", "migrations", "gen2"],
-  "engines": { "node": ">=20" }
+  "engines": { "node": ">=22" }
 }

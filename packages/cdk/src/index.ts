@@ -110,7 +110,7 @@ export function withMigrations(backend: AmplifyBackendLike, opts: WithMigrations
   const assetDir = opts.prebuiltAssetDir ?? buildLambdaAsset(opts.migrationsDir, __dirname);
 
   const runner = new LambdaFunction(migrationStack, 'RunnerFn', {
-    runtime: Runtime.NODEJS_20_X,
+    runtime: Runtime.NODEJS_22_X,
     handler: 'handler.handler',
     code: Code.fromAsset(assetDir),
     timeout: opts.timeout ?? Duration.minutes(15),

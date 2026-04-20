@@ -9,7 +9,7 @@ export default defineConfig({
   dts: { entry: 'src/index.ts' },
   sourcemap: true,
   clean: true,
-  target: 'node20',
+  target: 'node22',
   // esbuild is required at synth time for the default bundler path
   external: ['aws-cdk-lib', 'constructs', 'esbuild'],
 });
