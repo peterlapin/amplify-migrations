@@ -14,7 +14,8 @@
     "verify": "pnpm lint && pnpm typecheck && pnpm build && pnpm test",
     "pack:local": "mkdir -p ./.tmp/pack && pnpm -C packages/core pack --pack-destination ../../.tmp/pack && pnpm -C packages/cli pack --pack-destination ../../.tmp/pack && pnpm -C packages/cdk pack --pack-destination ../../.tmp/pack",
     "changeset": "changeset",
-    "release": "pnpm verify && changeset publish --tag next"
+    "release": "pnpm verify && pnpm pack:local && node ./scripts/publish-tarballs.mjs --tag next",
+    "release:dry-run": "pnpm verify && pnpm pack:local && node ./scripts/publish-tarballs.mjs --tag next --dry-run"
   },
   "devDependencies": {
     "@swc-node/register": "^1.10.0",
