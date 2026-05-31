@@ -16,16 +16,16 @@ importers:
         version: 2.30.0(@types/node@20.19.39)
       '@swc-node/register':
         specifier: ^1.10.0
-        version: 1.11.1(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)(@swc/core@1.15.26)(@swc/types@0.1.26)(typescript@5.9.3)
+        version: 1.11.1(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)(@swc/core@1.15.26)(@swc/types@0.1.26)(typescript@6.0.3)
       '@types/node':
         specifier: ^20.14.0
         version: 20.19.39
       tsup:
         specifier: ^8.3.0
-        version: 8.5.1(@swc/core@1.15.26)(postcss@8.5.9)(tsx@4.19.4)(typescript@5.9.3)
+        version: 8.5.1(@swc/core@1.15.26)(postcss@8.5.9)(tsx@4.19.4)(typescript@6.0.3)
       typescript:
-        specifier: ^5.6.0
-        version: 5.9.3
+        specifier: ^6.0.0
+        version: 6.0.3
 
   examples/gen2-todo:
     dependencies:
@@ -75,7 +75,7 @@ importers:
     devDependencies:
       '@swc-node/register':
         specifier: ^1.10.0
-        version: 1.11.1(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)(@swc/core@1.15.26)(@swc/types@0.1.26)(typescript@5.9.3)
+        version: 1.11.1(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)(@swc/core@1.15.26)(@swc/types@0.1.26)(typescript@6.0.3)
       '@types/node':
         specifier: ^20.14.0
         version: 20.19.39
@@ -87,10 +87,10 @@ importers:
         version: 10.6.0
       tsup:
         specifier: ^8.3.0
-        version: 8.5.1(@swc/core@1.15.26)(postcss@8.5.9)(tsx@4.19.4)(typescript@5.9.3)
+        version: 8.5.1(@swc/core@1.15.26)(postcss@8.5.9)(tsx@4.19.4)(typescript@6.0.3)
       typescript:
-        specifier: ^5.6.0
-        version: 5.9.3
+        specifier: ^6.0.0
+        version: 6.0.3
 
   packages/cli:
     dependencies:
@@ -99,7 +99,7 @@ importers:
         version: link:../core
       '@swc-node/register':
         specifier: ^1.10.0
-        version: 1.11.1(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)(@swc/core@1.15.26)(@swc/types@0.1.26)(typescript@5.9.3)
+        version: 1.11.1(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)(@swc/core@1.15.26)(@swc/types@0.1.26)(typescript@6.0.3)
       commander:
         specifier: ^12.1.0
         version: 12.1.0
@@ -112,10 +112,10 @@ importers:
         version: 20.19.39
       tsup:
         specifier: ^8.3.0
-        version: 8.5.1(@swc/core@1.15.26)(postcss@8.5.9)(tsx@4.19.4)(typescript@5.9.3)
+        version: 8.5.1(@swc/core@1.15.26)(postcss@8.5.9)(tsx@4.19.4)(typescript@6.0.3)
       typescript:
-        specifier: ^5.6.0
-        version: 5.9.3
+        specifier: ^6.0.0
+        version: 6.0.3
 
   packages/core:
     dependencies:
@@ -134,16 +134,16 @@ importers:
     devDependencies:
       '@swc-node/register':
         specifier: ^1.10.0
-        version: 1.11.1(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)(@swc/core@1.15.26)(@swc/types@0.1.26)(typescript@5.9.3)
+        version: 1.11.1(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)(@swc/core@1.15.26)(@swc/types@0.1.26)(typescript@6.0.3)
       aws-sdk-client-mock:
         specifier: ^4.1.0
         version: 4.1.0
       tsup:
         specifier: ^8.3.0
-        version: 8.5.1(@swc/core@1.15.26)(postcss@8.5.9)(tsx@4.19.4)(typescript@5.9.3)
+        version: 8.5.1(@swc/core@1.15.26)(postcss@8.5.9)(tsx@4.19.4)(typescript@6.0.3)
       typescript:
-        specifier: ^5.6.0
-        version: 5.9.3
+        specifier: ^6.0.0
+        version: 6.0.3
 
 packages:
 
@@ -5300,6 +5300,11 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
 
+  typescript@6.0.3:
+    resolution: {integrity: sha512-y2TvuxSZPDyQakkFRPZHKFm+KKVqIisdg9/CZwm9ftvKXLP8NRWj38/ODjNbr43SsoXqNuAisEf1GdCxqWcdBw==}
+    engines: {node: '>=14.17'}
+    hasBin: true
+
   ua-parser-js@1.0.41:
     resolution: {integrity: sha512-LbBDqdIC5s8iROCUjMbW1f5dJQTEFB1+KO9ogbvlb3nm9n4YHa5p4KTvFPWvh2Hs8gZMBuiB1/8+pdfe/tDPug==}
     hasBin: true
@@ -9829,7 +9834,7 @@ snapshots:
       '@swc/core': 1.15.26
       '@swc/types': 0.1.26
 
-  '@swc-node/register@1.11.1(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)(@swc/core@1.15.26)(@swc/types@0.1.26)(typescript@5.9.3)':
+  '@swc-node/register@1.11.1(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)(@swc/core@1.15.26)(@swc/types@0.1.26)(typescript@6.0.3)':
     dependencies:
       '@swc-node/core': 1.14.1(@swc/core@1.15.26)(@swc/types@0.1.26)
       '@swc-node/sourcemap-support': 0.6.1
@@ -9839,7 +9844,7 @@ snapshots:
       oxc-resolver: 11.19.1(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)
       pirates: 4.0.7
       tslib: 2.8.1
-      typescript: 5.9.3
+      typescript: 6.0.3
     transitivePeerDependencies:
       - '@emnapi/core'
       - '@emnapi/runtime'
@@ -12442,7 +12447,7 @@ snapshots:
 
   tslib@2.8.1: {}
 
-  tsup@8.5.1(@swc/core@1.15.26)(postcss@8.5.9)(tsx@4.19.4)(typescript@5.9.3):
+  tsup@8.5.1(@swc/core@1.15.26)(postcss@8.5.9)(tsx@4.19.4)(typescript@6.0.3):
     dependencies:
       bundle-require: 5.1.0(esbuild@0.27.7)
       cac: 6.7.14
@@ -12464,7 +12469,7 @@ snapshots:
     optionalDependencies:
       '@swc/core': 1.15.26
       postcss: 8.5.9
-      typescript: 5.9.3
+      typescript: 6.0.3
     transitivePeerDependencies:
       - jiti
       - supports-color
@@ -12518,6 +12523,8 @@ snapshots:
   typescript@4.4.4: {}
 
   typescript@5.9.3: {}
+
+  typescript@6.0.3: {}
 
   ua-parser-js@1.0.41: {}
 
