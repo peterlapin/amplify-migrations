@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@lapinsoft/data-migrations-core": "workspace:*",
-    "esbuild": "^0.24.0"
+    "esbuild": "^0.28.0"
   },
   "peerDependencies": {
     "aws-cdk-lib": ">=2.140.0",
