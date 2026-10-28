@@ -7,11 +7,14 @@
   "bin": {
     "amplify-migrations": "./dist/cli.js"
   },
-  "files": ["dist", "README.md"],
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
     "build": "tsup",
     "typecheck": "tsc --noEmit",
-    "test": "node --no-warnings --import @swc-node/register/esm-register --test test/*.test.ts"
+    "test": "node ../../scripts/test.mjs test/*.test.ts"
   },
   "dependencies": {
     "@lapinsoft/data-migrations-core": "workspace:*",
@@ -20,7 +23,7 @@
     "picocolors": "^1.1.0"
   },
   "devDependencies": {
-    "@types/node": "^20.14.0",
+    "@types/node": "^24.19.2",
     "tsup": "^8.3.0",
     "typescript": "^5.6.0"
   },
@@ -34,7 +37,18 @@
     "directory": "packages/cli"
   },
   "homepage": "https://github.com/peterlapin/amplify-migrations#readme",
-  "bugs": { "url": "https://github.com/peterlapin/amplify-migrations/issues" },
-  "keywords": ["amplify", "aws", "dynamodb", "migrations", "cli", "gen2"],
-  "engines": { "node": ">=22" }
+  "bugs": {
+    "url": "https://github.com/peterlapin/amplify-migrations/issues"
+  },
+  "keywords": [
+    "amplify",
+    "aws",
+    "dynamodb",
+    "migrations",
+    "cli",
+    "gen2"
+  ],
+  "engines": {
+    "node": ">=22"
+  }
 }

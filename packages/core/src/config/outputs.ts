@@ -25,7 +25,7 @@ const OutputsSchema = z
         amplifyMigrations: z
           .object({
             stateTable: z.string(),
-            tables: z.record(z.string()).optional(),
+            tables: z.record(z.string(), z.string()).optional(),
             version: z.string().optional(),
           })
           .optional(),

@@ -11,7 +11,6 @@ A [MikroORM][mikro-orm]-style database migration framework for **[AWS Amplify Da
 ## 1. Why this library exists
 
 [Amplify Gen 2][amplify-gen2] is declarative: you edit `amplify/data/resource.ts`, push, and CloudFormation reshapes the DynamoDB tables. That works until you need **data** changes that can't be expressed as schema changes:
-
 - Backfilling a new required attribute onto existing items
 - Splitting or merging models (copy items, rewrite keys)
 - Renaming an attribute without data loss
@@ -37,14 +36,14 @@ Non-goals: generating migrations by diffing Amplify schemas (Amplify/CDK already
 
 ## 3. How it compares
 
-| Concern | MikroORM | amplify-migrations |
-|---|---|---|
-| File naming | `Migration20240101120000.ts` | same |
-| Class shape | `extends Migration` with `up/down` | `extends AmplifyMigration` with `up(ctx)/down(ctx)` |
-| State | `mikro_orm_migrations` SQL table | `AmplifyMigration` DynamoDB table (defined as an Amplify model) |
-| Transactions | Wrap batch in one SQL tx | Per-migration `TransactWriteItems` where possible; advisory lock item for the whole run |
-| Diff generation | Entity → SQL autogenerate | Not included (CDK handles schema infra); `create` scaffolds a blank file |
-| Config | `mikro-orm.config.ts` | `amplify-migrations.config.ts`, or inline inside `amplify/backend.ts` |
+| Concern         | MikroORM                           | amplify-migrations                                                                      |
+| --------------- | ---------------------------------- | --------------------------------------------------------------------------------------- |
+| File naming     | `Migration20240101120000.ts`       | same                                                                                    |
+| Class shape     | `extends Migration` with `up/down` | `extends AmplifyMigration` with `up(ctx)/down(ctx)`                                     |
+| State           | `mikro_orm_migrations` SQL table   | `AmplifyMigration` DynamoDB table (defined as an Amplify model)                         |
+| Transactions    | Wrap batch in one SQL tx           | Per-migration `TransactWriteItems` where possible; advisory lock item for the whole run |
+| Diff generation | Entity → SQL autogenerate          | Not included (CDK handles schema infra); `create` scaffolds a blank file                |
+| Config          | `mikro-orm.config.ts`              | `amplify-migrations.config.ts`, or inline inside `amplify/backend.ts`                   |
 
 ---
 
@@ -96,11 +95,11 @@ Publishing the runner separately from the CLI keeps Lambda bundles small — the
 
 ```ts
 // amplify-migrations.config.ts
-import { defineMigrationsConfig } from "@lapinsoft/data-migrations-core";
+import { defineMigrationsConfig } from '@lapinsoft/data-migrations-core';
 
 export default defineMigrationsConfig({
-  migrationsDir: "./amplify/migrations",
-  outputsPath: "./amplify_outputs.json", // state-table name is read from here
+  migrationsDir: './amplify/migrations',
+  outputsPath: './amplify_outputs.json', // state-table name is read from here
   lockTtlSeconds: 600,
 });
 ```
@@ -113,34 +112,33 @@ The state table's physical name is never hardcoded; `withMigrations()` writes it
 
 ```ts
 // amplify/migrations/Migration20260415120000-backfill-todo-owner.ts
-import { AmplifyMigration, type MigrationContext } from "@lapinsoft/data-migrations-core";
+import { AmplifyMigration, type MigrationContext } from '@lapinsoft/data-migrations-core';
 // Schema is imported from the FROZEN sibling snapshot, not from
 // `../data/resource`. See §5.5 for why.
-import type { Schema } from "./Migration20260415120000-backfill-todo-owner.schema.js";
+import type { Schema } from './Migration20260415120000-backfill-todo-owner.schema.js';
 
 export default class extends AmplifyMigration<Schema> {
-  static override description = "Backfill Todo.owner from legacy createdBy";
+  static override description = 'Backfill Todo.owner from legacy createdBy';
 
   async up(ctx: MigrationContext<Schema>) {
-    for await (const todo of ctx.scan("Todo")) {
+    for await (const todo of ctx.scan('Todo')) {
       const t = todo as { id: string; owner?: string; createdBy?: string };
       if (!t.owner && t.createdBy) {
-        await ctx.update("Todo", { id: t.id }, { owner: t.createdBy });
+        await ctx.update('Todo', { id: t.id }, { owner: t.createdBy });
       }
     }
   }
 
   async down(ctx: MigrationContext<Schema>) {
-    for await (const todo of ctx.scan("Todo")) {
+    for await (const todo of ctx.scan('Todo')) {
       const t = todo as { id: string };
-      await ctx.update("Todo", { id: t.id }, { owner: null });
+      await ctx.update('Todo', { id: t.id }, { owner: null });
     }
   }
 }
 ```
 
 `MigrationContext` exposes a thin, typed façade over the AWS SDK v3 `DynamoDBDocumentClient`:
-
 - `ctx.get(model, key)`, `ctx.put(model, item)`, `ctx.update(model, key, patch)`, `ctx.delete(model, key)`
 - `ctx.scan(model, opts?)` — async iterator, auto-paginates
 - `ctx.transact([...ops])` — compiled to `TransactWriteItems`
@@ -156,22 +154,21 @@ Model names are literal union types derived from `Schema`, so typos fail at comp
 
 ```ts
 // amplify/backend.ts
-import { defineBackend } from "@aws-amplify/backend";
-import { withMigrations } from "@lapinsoft/data-migrations-cdk";
-import { auth } from "./auth/resource";
-import { data } from "./data/resource";
+import { defineBackend } from '@aws-amplify/backend';
+import { withMigrations } from '@lapinsoft/data-migrations-cdk';
+import { auth } from './auth/resource';
+import { data } from './data/resource';
 
 const backend = defineBackend({ auth, data });
 
 // Adds: migration state model, deploy-time Lambda, CustomResource, IAM grants
 withMigrations(backend, {
-  migrationsDir: "./amplify/migrations",
-  runOnDeploy: "pending",   // "pending" | "off"
+  migrationsDir: './amplify/migrations',
+  runOnDeploy: 'pending', // "pending" | "off"
 });
 ```
 
 Under the hood, `withMigrations`:
-
 1. Creates a nested `AmplifyMigrations` stack and provisions a private DynamoDB state table inside it (not exposed through the Amplify schema — stays out of GraphQL/ClientSchema).
 2. Bundles the `migrations/` folder into a Lambda.
 3. Grants that Lambda IAM read/write on every table in `backend.data.resources.tables` plus the state table.
@@ -200,10 +197,10 @@ All commands load `amplify_outputs.json` to discover the state-table name and re
 
 ```ts
 // inside withMigrations(backend, opts)
-new Table(migrationStack, "StateTable", {
-  partitionKey: { name: "name", type: AttributeType.STRING },
+new Table(migrationStack, 'StateTable', {
+  partitionKey: { name: 'name', type: AttributeType.STRING },
   billingMode: BillingMode.PAY_PER_REQUEST,
-  timeToLiveAttribute: "expiresAt",    // auto-expires orphaned locks
+  timeToLiveAttribute: 'expiresAt', // auto-expires orphaned locks
   pointInTimeRecovery: true,
   removalPolicy: RemovalPolicy.RETAIN, // opt-in DESTROY for sandboxes
 });
@@ -211,10 +208,10 @@ new Table(migrationStack, "StateTable", {
 
 Items stored:
 
-| `name` (PK)                                 | fields                                                                 |
-|---|---|
-| `<migrationName>#<up\|down>#<ISO>`          | `migrationName`, `checksum`, `appliedAt`, `durationMs`, `batch`, `direction` |
-| `__lock__`                                  | `holder`, `expiresAt` (TTL)                                            |
+| `name` (PK)                        | fields                                                                       |
+| ---------------------------------- | ---------------------------------------------------------------------------- |
+| `<migrationName>#<up\|down>#<ISO>` | `migrationName`, `checksum`, `appliedAt`, `durationMs`, `batch`, `direction` |
+| `__lock__`                         | `holder`, `expiresAt` (TTL)                                                  |
 
 Plus one reserved item used as a lock:
 
@@ -249,7 +246,6 @@ Checksum mismatch between disk and recorded row causes a loud warning (and refus
 ### Transaction semantics
 
 DynamoDB can't wrap an entire migration in one transaction (25-item limit, no cross-region). Instead:
-
 - Each migration runs to completion or throws — no partial "applied" state is recorded unless it fully succeeded.
 - `ctx.transact([...])` gives authors DDB's native `TransactWriteItems` for small atomic groups.
 - Idempotency is the author's responsibility; the library makes it easy by exposing `ctx.putIfAbsent`, `ctx.updateIfMatches`, etc.
@@ -260,24 +256,20 @@ DynamoDB can't wrap an entire migration in one transaction (25-item limit, no cr
 ## 8. Dependencies
 
 Core (runtime, shipped to Lambda):
-
 - `@aws-sdk/client-dynamodb`, `@aws-sdk/lib-dynamodb`, `@aws-sdk/util-dynamodb`
 - `zod` — config + `amplify_outputs.json` parsing
 - `pino` — structured logging (replaceable via the `logger` option)
 
 CLI:
-
 - `commander` — argument parsing (lighter than yargs, already used by Amplify CLI)
 - `@swc-node/register` — on-the-fly TS execution of migration files without a build step
 - `picocolors`, `prompts`
 
 CDK package:
-
 - `aws-cdk-lib`, `constructs` — peer deps
 - `@aws-amplify/backend` — peer dep
 
 Dev:
-
 - `tsup` for builds, `vitest` for tests, `aws-sdk-client-mock` for DDB mocking, `biome` for lint/format, `changesets` for release.
 
 No runtime dependency on MikroORM.
@@ -338,6 +330,6 @@ Total: ~7 engineering days to a publishable alpha.
 ## 11. Open questions (flag for review before Phase 1)
 
 1. **Should `withMigrations` also run on `ampx sandbox`?** Default yes for parity with production, but watch out for long migrations slowing hot-reload. Probably gate by `runOnDeploy: "pending"` but allow `"off"` per-env.
-2. **Auto-generation from Amplify schema diffs** — deliberately out of scope for 0.1; revisit once the core is stable. CDK already handles infra; we'd only ever generate *data* migrations, and those are hard to infer safely.
+2. **Auto-generation from Amplify schema diffs** — deliberately out of scope for 0.1; revisit once the core is stable. CDK already handles infra; we'd only ever generate _data_ migrations, and those are hard to infer safely.
 3. **Multi-region / replicated tables** — current design assumes one region per run. Multi-region would need a leader-election story; park for 1.0.
 4. **Seed vs migration distinction** — MikroORM has both. Start with migrations only; add `seeders/` in 0.2 if demand appears.

@@ -5,7 +5,6 @@
 [amplify-gen2]: https://docs.amplify.aws/react/build-a-backend/
 
 Drop `withMigrations(backend, opts)` into your `amplify/backend.ts` and it will:
-
 - Provision a private DynamoDB state/lock table in a nested `AmplifyMigrations` stack (kept **out** of your GraphQL API)
 - Bundle the migration files + runner handler via esbuild
 - Grant the runner Lambda IAM read/write on every Amplify-managed data table
@@ -22,32 +21,32 @@ pnpm add @lapinsoft/data-migrations-cdk @lapinsoft/data-migrations-core aws-cdk-
 
 ```ts
 // amplify/backend.ts
-import { defineBackend } from "@aws-amplify/backend";
-import { withMigrations } from "@lapinsoft/data-migrations-cdk";
-import { auth } from "./auth/resource";
-import { data } from "./data/resource";
+import { defineBackend } from '@aws-amplify/backend';
+import { withMigrations } from '@lapinsoft/data-migrations-cdk';
+import { auth } from './auth/resource';
+import { data } from './data/resource';
 
 const backend = defineBackend({ auth, data });
 
 withMigrations(backend, {
   migrationsDir: `${__dirname}/migrations`,
-  runOnDeploy: "pending",    // or "off"
-  checksumPolicy: "off",     // "off" | "warn" | "strict"
+  runOnDeploy: 'pending', // or "off"
+  checksumPolicy: 'off', // "off" | "warn" | "strict"
 });
 ```
 
 ## Options
 
-| Option | Default | Meaning |
-|---|---|---|
-| `migrationsDir` | required | Absolute path to the migrations folder to bundle |
-| `runOnDeploy` | `"pending"` | `"pending"` runs pending migrations; `"off"` deploys the infra but doesn't invoke the runner |
-| `timeout` | `Duration.minutes(15)` | Lambda timeout for the runner |
-| `stateTableRemovalPolicy` | `RemovalPolicy.RETAIN` | Use `DESTROY` for throwaway sandboxes |
-| `stateTableName` | auto-named | Fixed physical name for the state table. Only use when you control the full lifecycle; blocks CloudFormation from recreating the table under the same name |
-| `tags` | inherits parent | Extra tags to apply to all resources this creates. Pass `false` to skip auto-inheriting tags from the parent Amplify backend stack |
-| `checksumPolicy` | `"off"` | How the runner reacts to migration-file drift |
-| `prebuiltAssetDir` | — | Bypass the built-in esbuild bundler; point at an asset directory you built yourself |
+| Option                    | Default                | Meaning                                                                                                                                                    |
+| ------------------------- | ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `migrationsDir`           | required               | Absolute path to the migrations folder to bundle                                                                                                           |
+| `runOnDeploy`             | `"pending"`            | `"pending"` runs pending migrations; `"off"` deploys the infra but doesn't invoke the runner                                                               |
+| `timeout`                 | `Duration.minutes(15)` | Lambda timeout for the runner                                                                                                                              |
+| `stateTableRemovalPolicy` | `RemovalPolicy.RETAIN` | Use `DESTROY` for throwaway sandboxes                                                                                                                      |
+| `stateTableName`          | auto-named             | Fixed physical name for the state table. Only use when you control the full lifecycle; blocks CloudFormation from recreating the table under the same name |
+| `tags`                    | inherits parent        | Extra tags to apply to all resources this creates. Pass `false` to skip auto-inheriting tags from the parent Amplify backend stack                         |
+| `checksumPolicy`          | `"off"`                | How the runner reacts to migration-file drift                                                                                                              |
+| `prebuiltAssetDir`        | —                      | Bypass the built-in esbuild bundler; point at an asset directory you built yourself                                                                        |
 
 ## Peer dependencies
 

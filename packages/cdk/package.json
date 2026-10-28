@@ -12,15 +12,18 @@
       "import": "./dist/index.js"
     }
   },
-  "files": ["dist", "README.md"],
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
     "build": "tsup",
     "typecheck": "tsc --noEmit",
-    "test": "pnpm build && node --no-warnings --import @swc-node/register/esm-register --test test/*.test.ts test/*.pkgtest.ts"
+    "test": "pnpm build && node ../../scripts/test.mjs test/*.test.ts test/*.pkgtest.ts"
   },
   "dependencies": {
     "@lapinsoft/data-migrations-core": "workspace:*",
-    "esbuild": "^0.24.0"
+    "esbuild": "^0.28.2"
   },
   "peerDependencies": {
     "aws-cdk-lib": ">=2.140.0",
@@ -28,8 +31,8 @@
   },
   "devDependencies": {
     "@swc-node/register": "^1.10.0",
-    "@types/node": "^20.14.0",
-    "aws-cdk-lib": "^2.164.0",
+    "@types/node": "^24.19.2",
+    "aws-cdk-lib": "^2.274.0",
     "constructs": "^10.3.0",
     "tsup": "^8.3.0",
     "typescript": "^5.6.0"
@@ -39,8 +42,12 @@
     "tag": "next"
   },
   "peerDependenciesMeta": {
-    "aws-cdk-lib": { "optional": false },
-    "constructs": { "optional": false }
+    "aws-cdk-lib": {
+      "optional": false
+    },
+    "constructs": {
+      "optional": false
+    }
   },
   "repository": {
     "type": "git",
@@ -48,7 +55,18 @@
     "directory": "packages/cdk"
   },
   "homepage": "https://github.com/peterlapin/amplify-migrations#readme",
-  "bugs": { "url": "https://github.com/peterlapin/amplify-migrations/issues" },
-  "keywords": ["amplify", "aws", "cdk", "dynamodb", "migrations", "gen2"],
-  "engines": { "node": ">=22" }
+  "bugs": {
+    "url": "https://github.com/peterlapin/amplify-migrations/issues"
+  },
+  "keywords": [
+    "amplify",
+    "aws",
+    "cdk",
+    "dynamodb",
+    "migrations",
+    "gen2"
+  ],
+  "engines": {
+    "node": ">=22"
+  }
 }
