@@ -20,5 +20,8 @@
   "automergeType": "pr",
   "automergeStrategy": "squash",
   "platformAutomerge": false,
-  "ignoreTests": false
+  "ignoreTests": false,
+  "vulnerabilityAlerts": {
+    "minimumReleaseAge": "7 days"
+  }
 }
