@@ -1,12 +1,24 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:recommended"],
+  "extends": [
+    "config:recommended"
+  ],
   "minimumReleaseAge": "7 days",
   "internalChecksFilter": "strict",
   "packageRules": [
     {
       "groupName": "AWS DynamoDB SDK",
-      "matchPackageNames": ["@aws-sdk/client-dynamodb", "@aws-sdk/lib-dynamodb"]
+      "matchPackageNames": [
+        "@aws-sdk/client-dynamodb",
+        "@aws-sdk/lib-dynamodb"
+      ]
     }
-  ]
+  ],
+  "prCreation": "immediate",
+  "dependencyDashboard": true,
+  "automerge": true,
+  "automergeType": "pr",
+  "automergeStrategy": "squash",
+  "platformAutomerge": false,
+  "ignoreTests": false
 }
