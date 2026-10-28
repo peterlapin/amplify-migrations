@@ -7,7 +7,6 @@
 [mikro-orm]: https://github.com/mikro-orm/mikro-orm
 [amplify-data]: https://docs.amplify.aws/react/build-a-backend/data/
 [amplify-gen2]: https://docs.amplify.aws/react/build-a-backend/
-
 - `migrations/` folder with timestamped files
 - Class-based `up(ctx)` / `down(ctx)` with typed model access
 - State + advisory lock stored in a private DynamoDB table owned by the library
@@ -41,15 +40,15 @@ pnpm add @lapinsoft/data-migrations-core @lapinsoft/data-migrations-cdk
 Your `amplify/data/resource.ts` stays **untouched** — the library owns its state/lock table internally and keeps it out of your GraphQL API, client-generated types, and auth rules. All you need is:
 
 ```ts
-import { defineBackend } from "@aws-amplify/backend";
-import { withMigrations } from "@lapinsoft/data-migrations-cdk";
-import { auth } from "./auth/resource";
-import { data } from "./data/resource";
+import { defineBackend } from '@aws-amplify/backend';
+import { withMigrations } from '@lapinsoft/data-migrations-cdk';
+import { auth } from './auth/resource';
+import { data } from './data/resource';
 
 const backend = defineBackend({ auth, data });
 withMigrations(backend, {
   migrationsDir: `${__dirname}/migrations`,
-  runOnDeploy: "pending",
+  runOnDeploy: 'pending',
 });
 ```
 
@@ -63,24 +62,24 @@ Edit the generated file:
 
 ```ts
 // amplify/migrations/Migration20260415120000-backfill-todo-owner.ts
-import { AmplifyMigration, type MigrationContext } from "@lapinsoft/data-migrations-core";
+import { AmplifyMigration, type MigrationContext } from '@lapinsoft/data-migrations-core';
 // Note: `.js` specifier is correct even though the file is `.schema.ts` —
 // that's how Node ESM + TypeScript NodeNext resolution works. See FAQ below.
-import type { Schema } from "./Migration20260415120000-backfill-todo-owner.schema.js";
+import type { Schema } from './Migration20260415120000-backfill-todo-owner.schema.js';
 
 export default class extends AmplifyMigration<Schema> {
-  static override description = "Backfill Todo.owner from legacy createdBy";
+  static override description = 'Backfill Todo.owner from legacy createdBy';
 
   async up(ctx: MigrationContext<Schema>) {
-    for await (const todo of ctx.scan("Todo")) {
+    for await (const todo of ctx.scan('Todo')) {
       if (!todo.owner && todo.createdBy) {
-        await ctx.update("Todo", { id: todo.id }, { owner: todo.createdBy });
+        await ctx.update('Todo', { id: todo.id }, { owner: todo.createdBy });
       }
     }
   }
   async down(ctx: MigrationContext<Schema>) {
-    for await (const todo of ctx.scan("Todo")) {
-      await ctx.update("Todo", { id: todo.id }, { owner: null });
+    for await (const todo of ctx.scan('Todo')) {
+      await ctx.update('Todo', { id: todo.id }, { owner: null });
     }
   }
 }
@@ -146,7 +145,6 @@ The runner Lambda itself errored during `up()`. Check CloudWatch Logs under `/aw
 ## Publishing alpha builds
 
 The planned npm scope is `@lapinsoft`. Until the packages stabilize:
-
 - publishes stay manual
 - prereleases publish under the `next` dist-tag, not `latest`
 - enable npm 2FA before the first real publish

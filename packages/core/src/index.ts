@@ -1,7 +1,13 @@
+export { type AmplifyOutputs, readAmplifyOutputs } from './config/outputs.js';
+export { createContext } from './context/context.js';
+export { type DiscoveredMigration, discoverMigrations, nextTimestamp } from './loader/loader.js';
+export { type DownOptions, Runner, type RunResult, type UpOptions } from './runner/runner.js';
+export { type ScaffoldResult, scaffoldMigration } from './runner/scaffold.js';
+export { StateStore } from './state/store.js';
 export {
   AmplifyMigration,
-  defineMigrationsConfig,
   type ChecksumPolicy,
+  defineMigrationsConfig,
   type ItemOf,
   type MigrationContext,
   type MigrationRecord,
@@ -11,10 +17,3 @@ export {
   type SchemaShape,
   type TransactOp,
 } from './types.js';
-
-export { Runner, type DownOptions, type RunResult, type UpOptions } from './runner/runner.js';
-export { StateStore } from './state/store.js';
-export { createContext } from './context/context.js';
-export { discoverMigrations, nextTimestamp, type DiscoveredMigration } from './loader/loader.js';
-export { readAmplifyOutputs, type AmplifyOutputs } from './config/outputs.js';
-export { scaffoldMigration, type ScaffoldResult } from './runner/scaffold.js';

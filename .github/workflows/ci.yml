@@ -1,21 +1,21 @@
 name: CI
 
-# Manual-only for now. When ready to run on every push/PR, restore:
-#   push:
-#     branches: [main]
-#   pull_request:
-#     branches: [main]
 on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
+
+permissions:
+  contents: read
 
 # Cancel superseded runs on the same PR/branch so a fast push replaces a slow one.
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
-# Opt into Node 24 as the actions runtime (checkout@v4, pnpm/action-setup@v4
-# still ship Node-20 bundles otherwise). Safe to drop once those actions
-# release v5 or GitHub forces the switch in June 2026.
+# Use Node 24 for actions that still ship a Node 20 runtime.
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
@@ -26,13 +26,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node: [22]
+        node: [22, 24]
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
 
       - uses: actions/setup-node@v4
         with:
@@ -53,3 +53,6 @@ jobs:
 
       - name: Test
         run: pnpm test
+
+      - name: Package integration tests
+        run: pnpm --filter @lapinsoft/data-migrations-cdk test

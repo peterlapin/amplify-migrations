@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.9.0/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.6.2/schema.json",
   "formatter": {
     "enabled": true,
     "indentStyle": "space",
@@ -9,7 +9,7 @@
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": true,
+      "preset": "recommended",
       "suspicious": {
         "noExplicitAny": "warn"
       },
@@ -28,14 +28,17 @@
     }
   },
   "files": {
-    "ignore": [
-      "**/dist/**",
-      "**/node_modules/**",
-      "**/.amplify/**",
-      "**/amplify_outputs.json",
-      "**/amplify_outputs*.json",
-      "**/amplifyconfiguration*.json",
-      "**/aws-exports.*"
+    "includes": [
+      "**",
+      "!**/dist",
+      "!**/node_modules",
+      "!**/.amplify",
+      "!**/amplify_outputs.json",
+      "!**/amplify_outputs*.json",
+      "!**/amplifyconfiguration*.json",
+      "!**/aws-exports.*",
+      "!pnpm-lock.yaml",
+      "!**/.tmp"
     ]
   }
 }

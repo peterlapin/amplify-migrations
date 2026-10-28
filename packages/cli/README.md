@@ -26,12 +26,12 @@ amplify-migrations list                          # show disk + applied
 Place an `amplify-migrations.config.ts` at your project root:
 
 ```ts
-import { defineMigrationsConfig } from "@lapinsoft/data-migrations-core";
+import { defineMigrationsConfig } from '@lapinsoft/data-migrations-core';
 
 export default defineMigrationsConfig({
-  migrationsDir: "./amplify/migrations",
-  outputsPath: "./amplify_outputs.json",
-  checksumPolicy: "off",   // "off" | "warn" | "strict"
+  migrationsDir: './amplify/migrations',
+  outputsPath: './amplify_outputs.json',
+  checksumPolicy: 'off', // "off" | "warn" | "strict"
 });
 ```
 

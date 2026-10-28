@@ -23,7 +23,6 @@ pnpm sandbox
 ```
 
 On first deploy, CloudFormation provisions:
-
 - Cognito user pool (from `auth/resource.ts`)
 - AppSync + DynamoDB `Todo` table (from `data/resource.ts`)
 - A nested `AmplifyMigrations` stack containing the private state table + runner Lambda

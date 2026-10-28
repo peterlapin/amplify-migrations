@@ -17,7 +17,7 @@ import {
   type MigrationContext,
   type MigrationsConfig,
   type ChecksumPolicy,
-} from "@lapinsoft/data-migrations-core";
+} from '@lapinsoft/data-migrations-core';
 ```
 
 - `AmplifyMigration<Schema>` — abstract class migrations extend.
@@ -28,18 +28,18 @@ import {
 ## Authoring a migration
 
 ```ts
-import { AmplifyMigration, type MigrationContext } from "@lapinsoft/data-migrations-core";
-import type { Schema } from "./Migration20260415120000-seed.schema.js";
+import { AmplifyMigration, type MigrationContext } from '@lapinsoft/data-migrations-core';
+import type { Schema } from './Migration20260415120000-seed.schema.js';
 
 export default class extends AmplifyMigration<Schema> {
-  static override description = "Seed Todos";
+  static override description = 'Seed Todos';
 
   async up(ctx: MigrationContext<Schema>) {
-    await ctx.put("Todo", { id: "welcome", content: "Hi" });
+    await ctx.put('Todo', { id: 'welcome', content: 'Hi' });
   }
 
   async down(ctx: MigrationContext<Schema>) {
-    await ctx.delete("Todo", { id: "welcome" });
+    await ctx.delete('Todo', { id: 'welcome' });
   }
 }
 ```
