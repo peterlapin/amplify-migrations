@@ -8,5 +8,15 @@
       "groupName": "AWS DynamoDB SDK",
       "matchPackageNames": ["@aws-sdk/client-dynamodb", "@aws-sdk/lib-dynamodb"]
     }
-  ]
+  ],
+  "prCreation": "immediate",
+  "dependencyDashboard": true,
+  "automerge": true,
+  "automergeType": "pr",
+  "automergeStrategy": "squash",
+  "platformAutomerge": false,
+  "ignoreTests": false,
+  "vulnerabilityAlerts": {
+    "minimumReleaseAge": "7 days"
+  }
 }
