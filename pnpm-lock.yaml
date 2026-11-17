@@ -121,10 +121,10 @@ importers:
     dependencies:
       '@aws-sdk/client-dynamodb':
         specifier: ^3.1156.0
-        version: 3.1164.0
+        version: 3.1165.0
       '@aws-sdk/lib-dynamodb':
         specifier: ^3.1156.0
-        version: 3.1164.0(@aws-sdk/client-dynamodb@3.1164.0)
+        version: 3.1165.0(@aws-sdk/client-dynamodb@3.1165.0)
       pino:
         specifier: ^10.4.0
         version: 10.4.0
@@ -786,8 +786,8 @@ packages:
     resolution: {integrity: sha512-PD9RIT5eJEXsP+Dq8fncTXOFAOI+EP3fRa/z1te2xehAVawixEpAJkjEE03A4msqPWGJ2S0TM2bb6zDbP66w3g==}
     engines: {node: '>=20.0.0'}
 
-  '@aws-sdk/client-dynamodb@3.1164.0':
-    resolution: {integrity: sha512-jrX0BtmtyRelTW/yAGgFpXvDj8BioL80njIGVfOsMsCrSKi+Ai0QZ45AqWgA0h1r7uzqfpWFhNUQZO77sOoyzg==}
+  '@aws-sdk/client-dynamodb@3.1165.0':
+    resolution: {integrity: sha512-gzEo0AAaXRH+aVr4irD/ZKthiM2fnVYREeMcvzhaypSCWYR+zVY7geRQts+6RsB6mbN758+HsCvZJBelxDzwBA==}
     engines: {node: '>=20.0.0'}
 
   '@aws-sdk/client-ec2@3.1030.0':
@@ -954,11 +954,11 @@ packages:
     resolution: {integrity: sha512-8q1ICxcDjHId3bBryuu/j+1L9y5/3uQnwzLDt5j2ElcjZSoWmFtymdJy7OjLrluSMe0Z4mq5bcH4fxBXvlEHfw==}
     engines: {node: '>=20.0.0'}
 
-  '@aws-sdk/lib-dynamodb@3.1164.0':
-    resolution: {integrity: sha512-6oTZONhW90r/MBDtTXlLjeWMj1gwAJp8nJ8iTviy9+B8lGjaCgyxqWv5lwEfguPOoWPu6CDoBcxKhbROqo2j4Q==}
+  '@aws-sdk/lib-dynamodb@3.1165.0':
+    resolution: {integrity: sha512-nkzZbXGXt094gATjekSOWZDB2q1qNVIMIfqJh8/kBV1peq80UbyDZ671sTcYE9wATll7VTjzLxmO57y3IGCQGg==}
     engines: {node: '>=20.0.0'}
     peerDependencies:
-      '@aws-sdk/client-dynamodb': ^3.1164.0
+      '@aws-sdk/client-dynamodb': ^3.1165.0
 
   '@aws-sdk/lib-storage@3.1030.0':
     resolution: {integrity: sha512-1Hn+m1sioy3OMvF/I1uDz9QjpqcE3QSsHvz0Y0UXyMthNCpvAEvN4qO9RWBDGfVqddY1Flsp0rfvjwYP4KVr+w==}
@@ -2607,6 +2607,10 @@ packages:
 
   '@smithy/core@3.40.0':
     resolution: {integrity: sha512-DssGno52pzZ5m6RlDtyKuBIpZNPg9pqgs0CnNDKz9IatxCsmvNmJNn5Zn6rf77MthZo9wf89OvZFhTY/RwxhxQ==}
+    engines: {node: '>=18.0.0'}
+
+  '@smithy/core@3.41.0':
+    resolution: {integrity: sha512-fuZ34H1uizS3WgcX9VXG7Uy8od5A5/kCc+CR3NkHLNm2H/BE9AUHG02VIdu8ZB7FYhLqsr/RZbqAoXuOCg/Oxg==}
     engines: {node: '>=18.0.0'}
 
   '@smithy/credential-provider-imds@4.2.13':
@@ -6797,14 +6801,14 @@ snapshots:
     transitivePeerDependencies:
       - aws-crt
 
-  '@aws-sdk/client-dynamodb@3.1164.0':
+  '@aws-sdk/client-dynamodb@3.1165.0':
     dependencies:
       '@aws-sdk/core': 3.981.0
       '@aws-sdk/credential-provider-node': 3.972.97
       '@aws-sdk/dynamodb-codec': 3.973.58
       '@aws-sdk/middleware-endpoint-discovery': 3.972.39
       '@aws-sdk/types': 3.975.1
-      '@smithy/core': 3.40.0
+      '@smithy/core': 3.41.0
       '@smithy/fetch-http-handler': 5.8.1
       '@smithy/node-http-handler': 4.14.2
       '@smithy/types': 4.20.0
@@ -7282,7 +7286,7 @@ snapshots:
       '@aws-sdk/util-user-agent-browser': 3.972.9
       '@aws-sdk/util-user-agent-node': 3.973.15
       '@smithy/config-resolver': 4.4.15
-      '@smithy/core': 3.40.0
+      '@smithy/core': 3.41.0
       '@smithy/fetch-http-handler': 5.8.1
       '@smithy/hash-node': 4.2.13
       '@smithy/invalid-dependency': 4.2.13
@@ -7615,7 +7619,7 @@ snapshots:
       '@aws-sdk/types': 3.975.1
       '@aws-sdk/xml-builder': 3.972.43
       '@aws/lambda-invoke-store': 0.3.0
-      '@smithy/core': 3.40.0
+      '@smithy/core': 3.41.0
       '@smithy/signature-v4': 5.7.5
       '@smithy/types': 4.20.0
       bowser: 2.15.0
@@ -7852,7 +7856,7 @@ snapshots:
   '@aws-sdk/dynamodb-codec@3.973.58':
     dependencies:
       '@aws-sdk/core': 3.981.0
-      '@smithy/core': 3.40.0
+      '@smithy/core': 3.41.0
       '@smithy/types': 4.20.0
       tslib: 2.9.1
 
@@ -7871,12 +7875,12 @@ snapshots:
       mnemonist: 0.38.3
       tslib: 2.9.1
 
-  '@aws-sdk/lib-dynamodb@3.1164.0(@aws-sdk/client-dynamodb@3.1164.0)':
+  '@aws-sdk/lib-dynamodb@3.1165.0(@aws-sdk/client-dynamodb@3.1165.0)':
     dependencies:
-      '@aws-sdk/client-dynamodb': 3.1164.0
+      '@aws-sdk/client-dynamodb': 3.1165.0
       '@aws-sdk/core': 3.981.0
-      '@aws-sdk/util-dynamodb': 3.996.9(@aws-sdk/client-dynamodb@3.1164.0)
-      '@smithy/core': 3.40.0
+      '@aws-sdk/util-dynamodb': 3.996.9(@aws-sdk/client-dynamodb@3.1165.0)
+      '@smithy/core': 3.41.0
       '@smithy/types': 4.20.0
       tslib: 2.9.1
 
@@ -7906,7 +7910,7 @@ snapshots:
     dependencies:
       '@aws-sdk/endpoint-cache': 3.972.11
       '@aws-sdk/types': 3.975.1
-      '@smithy/core': 3.40.0
+      '@smithy/core': 3.41.0
       '@smithy/types': 4.20.0
       tslib: 2.9.1
 
@@ -8135,9 +8139,9 @@ snapshots:
     dependencies:
       tslib: 2.9.1
 
-  '@aws-sdk/util-dynamodb@3.996.9(@aws-sdk/client-dynamodb@3.1164.0)':
+  '@aws-sdk/util-dynamodb@3.996.9(@aws-sdk/client-dynamodb@3.1165.0)':
     dependencies:
-      '@aws-sdk/client-dynamodb': 3.1164.0
+      '@aws-sdk/client-dynamodb': 3.1165.0
       tslib: 2.9.1
 
   '@aws-sdk/util-endpoints@3.996.6':
@@ -9564,6 +9568,11 @@ snapshots:
       '@smithy/types': 4.20.0
       tslib: 2.9.1
 
+  '@smithy/core@3.41.0':
+    dependencies:
+      '@smithy/types': 4.20.0
+      tslib: 2.9.1
+
   '@smithy/credential-provider-imds@4.2.13':
     dependencies:
       '@smithy/node-config-provider': 4.3.13
@@ -9574,7 +9583,7 @@ snapshots:
 
   '@smithy/credential-provider-imds@4.5.2':
     dependencies:
-      '@smithy/core': 3.40.0
+      '@smithy/core': 3.41.0
       '@smithy/types': 4.20.0
       tslib: 2.8.1
 
@@ -9618,7 +9627,7 @@ snapshots:
 
   '@smithy/fetch-http-handler@5.8.1':
     dependencies:
-      '@smithy/core': 3.40.0
+      '@smithy/core': 3.41.0
       '@smithy/types': 4.20.0
       tslib: 2.9.1
 
@@ -9722,7 +9731,7 @@ snapshots:
 
   '@smithy/node-http-handler@4.14.2':
     dependencies:
-      '@smithy/core': 3.40.0
+      '@smithy/core': 3.41.0
       '@smithy/types': 4.20.0
       tslib: 2.9.1
 
@@ -9776,7 +9785,7 @@ snapshots:
 
   '@smithy/signature-v4@5.7.5':
     dependencies:
-      '@smithy/core': 3.40.0
+      '@smithy/core': 3.41.0
       '@smithy/types': 4.20.0
       tslib: 2.8.1
 
