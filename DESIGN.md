@@ -11,6 +11,7 @@ A [MikroORM][mikro-orm]-style database migration framework for **[AWS Amplify Da
 ## 1. Why this library exists
 
 [Amplify Gen 2][amplify-gen2] is declarative: you edit `amplify/data/resource.ts`, push, and CloudFormation reshapes the DynamoDB tables. That works until you need **data** changes that can't be expressed as schema changes:
+
 - Backfilling a new required attribute onto existing items
 - Splitting or merging models (copy items, rewrite keys)
 - Renaming an attribute without data loss
@@ -139,6 +140,7 @@ export default class extends AmplifyMigration<Schema> {
 ```
 
 `MigrationContext` exposes a thin, typed façade over the AWS SDK v3 `DynamoDBDocumentClient`:
+
 - `ctx.get(model, key)`, `ctx.put(model, item)`, `ctx.update(model, key, patch)`, `ctx.delete(model, key)`
 - `ctx.scan(model, opts?)` — async iterator, auto-paginates
 - `ctx.transact([...ops])` — compiled to `TransactWriteItems`
@@ -169,6 +171,7 @@ withMigrations(backend, {
 ```
 
 Under the hood, `withMigrations`:
+
 1. Creates a nested `AmplifyMigrations` stack and provisions a private DynamoDB state table inside it (not exposed through the Amplify schema — stays out of GraphQL/ClientSchema).
 2. Bundles the `migrations/` folder into a Lambda.
 3. Grants that Lambda IAM read/write on every table in `backend.data.resources.tables` plus the state table.
@@ -246,6 +249,7 @@ Checksum mismatch between disk and recorded row causes a loud warning (and refus
 ### Transaction semantics
 
 DynamoDB can't wrap an entire migration in one transaction (25-item limit, no cross-region). Instead:
+
 - Each migration runs to completion or throws — no partial "applied" state is recorded unless it fully succeeded.
 - `ctx.transact([...])` gives authors DDB's native `TransactWriteItems` for small atomic groups.
 - Idempotency is the author's responsibility; the library makes it easy by exposing `ctx.putIfAbsent`, `ctx.updateIfMatches`, etc.
@@ -256,20 +260,24 @@ DynamoDB can't wrap an entire migration in one transaction (25-item limit, no cr
 ## 8. Dependencies
 
 Core (runtime, shipped to Lambda):
+
 - `@aws-sdk/client-dynamodb`, `@aws-sdk/lib-dynamodb`, `@aws-sdk/util-dynamodb`
 - `zod` — config + `amplify_outputs.json` parsing
 - `pino` — structured logging (replaceable via the `logger` option)
 
 CLI:
+
 - `commander` — argument parsing (lighter than yargs, already used by Amplify CLI)
 - `@swc-node/register` — on-the-fly TS execution of migration files without a build step
 - `picocolors`, `prompts`
 
 CDK package:
+
 - `aws-cdk-lib`, `constructs` — peer deps
 - `@aws-amplify/backend` — peer dep
 
 Dev:
+
 - `tsup` for builds, `vitest` for tests, `aws-sdk-client-mock` for DDB mocking, `biome` for lint/format, `changesets` for release.
 
 No runtime dependency on MikroORM.
@@ -290,10 +298,12 @@ No runtime dependency on MikroORM.
 Phased, each phase leaves the library usable.
 
 **Phase 0 — Repo bootstrap** (0.5 day)
+
 - pnpm workspace, tsconfig base, biome, changesets, CI skeleton
 - `packages/core`, `packages/cli`, `packages/cdk` with empty builds
 
 **Phase 1 — Core runner, local only** (2 days)
+
 - `StateStore` (DDB) with lock
 - `MigrationLoader` (filesystem, swc-node)
 - `MigrationContext` + typed CRUD helpers
@@ -301,11 +311,13 @@ Phased, each phase leaves the library usable.
 - Unit tests against mocked DDB
 
 **Phase 2 — CLI** (1 day)
+
 - `create`, `up`, `down`, `pending`, `list`, `status`, `fresh`
 - Reads `amplify_outputs.json`; credential chain via SDK defaults
 - Integration tests against dynamodb-local
 
 **Phase 3 — CDK integration** (1.5 days)
+
 - `withMigrations(backend, opts)` helper
 - `AmplifyMigration` model injection
 - Lambda bundling of `migrationsDir` (esbuild)
@@ -313,12 +325,14 @@ Phased, each phase leaves the library usable.
 - IAM grants scoped to discovered tables only
 
 **Phase 4 — DX polish** (1 day)
+
 - Checksum drift detection + `--allow-checksum-mismatch`
 - `--dry` prints planned operations
 - `status` shows lock holder, last batch, pending count
 - Rich error messages pointing at the failing migration file + stack
 
 **Phase 5 — Example + docs** (1 day)
+
 - `examples/gen2-todo` full walkthrough
 - README with quickstart, config reference, recipes (backfill, rename, split model)
 - Published to GitHub with MIT license, Actions release workflow via changesets

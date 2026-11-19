@@ -5,6 +5,7 @@
 [amplify-gen2]: https://docs.amplify.aws/react/build-a-backend/
 
 Drop `withMigrations(backend, opts)` into your `amplify/backend.ts` and it will:
+
 - Provision a private DynamoDB state/lock table in a nested `AmplifyMigrations` stack (kept **out** of your GraphQL API)
 - Bundle the migration files + runner handler via esbuild
 - Grant the runner Lambda IAM read/write on every Amplify-managed data table

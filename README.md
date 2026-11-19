@@ -145,6 +145,7 @@ The runner Lambda itself errored during `up()`. Check CloudWatch Logs under `/aw
 ## Publishing alpha builds
 
 The planned npm scope is `@lapinsoft`. Until the packages stabilize:
+
 - publishes stay manual
 - prereleases publish under the `next` dist-tag, not `latest`
 - enable npm 2FA before the first real publish
